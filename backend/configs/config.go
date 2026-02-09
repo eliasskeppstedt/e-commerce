@@ -1,4 +1,4 @@
-package config
+package configs
 
 import (
 	"github.com/go-sql-driver/mysql"

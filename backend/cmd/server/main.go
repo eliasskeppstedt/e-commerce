@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"ecommerce/duckyarmy/config"
+	"ecommerce/duckyarmy/configs"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -22,12 +22,12 @@ func main() {
 	})
 
 	var err error
-	appCfg, err := config.LoadDbCfg()
+	appCfg, err := configs.LoadDbCfg()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	dsnCfg := config.LoadDsnCfg(&appCfg.DB) // unnecesary functions in config?
+	dsnCfg := configs.LoadDsnCfg(&appCfg.DB) // unnecesary functions in config?
 
 	// Get a database handle.
 	var db *sql.DB // where to store, in app config, any of its child structs or own struct???
