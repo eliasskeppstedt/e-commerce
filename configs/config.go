@@ -15,6 +15,7 @@ type MysqlConfig struct {
 	User string
 	Pass string
 	Url  string
+	Name string
 }
 
 func LoadDbCfg() (Config, error) {
@@ -27,6 +28,7 @@ func LoadDbCfg() (Config, error) {
 			User: os.Getenv("DBUSER"),
 			Pass: os.Getenv("DBPASS"),
 			Url:  os.Getenv("DBURL"),
+			Name: os.Getenv("DBNAME"),
 		},
 	}
 
@@ -40,6 +42,6 @@ func LoadDsnCfg(mysqlConfig *MysqlConfig) *mysql.Config {
 	cfg.Passwd = mysqlConfig.Pass
 	cfg.Net = "tcp"
 	cfg.Addr = mysqlConfig.Url
-	cfg.DBName = "ecom"
+	cfg.DBName = mysqlConfig.Name
 	return cfg
 }
