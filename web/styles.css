@@ -7,29 +7,38 @@ h2, p {
   margin: 10px;
 }
 
-ul {
-  list-style-type: none;
+.menu-bar {
+  background-color: #333;
+}
+
+.menu-bar ul {
+  list-style: none;
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  background-color: #333333;
+  display: flex;              /* Makes items horizontal */
 }
 
-ul li {
-  float: left;
+.menu-bar li {
+  margin: 0;
 }
 
-ul li a {
+.menu-bar a {
   display: block;
-  color: white;
-  text-align: center;
-  padding: 14px 16px;
+  padding: 14px 20px;
   text-decoration: none;
+  color: white;
+  font-family: Arial, sans-serif;
+  transition: background 0.3s ease;
 }
 
-ul li a:hover {
-  background-color: #111111;
+.menu-bar a:hover {
+  background-color: #575757;
 }
+
+.menu-bar a.active {
+  background-color: #ffec17;
+}
+
 
 .myDiv {
   border: 10px outset rgb(0, 47, 123);
@@ -81,6 +90,13 @@ body {
     border-radius: 4px;
 }
 
+.rolltext {
+    margin: 30px auto;
+    font-size: 30px;
+    white-space: nowrap;
+    animation: fireScroll 8s linear infinite;
+}
+
 .fireSale {
     margin: 40px auto;
     display: block;
@@ -103,8 +119,28 @@ body {
         0 0 20px rgba(255, 140, 0, 0.6),
         0 0 40px rgba(255, 215, 0, 0.4);
     animation: fireGlow 3s ease infinite;
-    white-space: nowrap;
-    animation: fireScroll 12s linear infinite;
+}
+
+.title::before {
+    content: "🐤 ";
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.title::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 6px;
+    background: #ffd54f;
+    border-radius: 10px;
 }
 
 @keyframes fireGlow {
@@ -136,3 +172,80 @@ body {
         transform: translateX(-100%);
     }
 }
+
+@keyframes backgroundPulse {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.login-container {
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  width: 350px;
+}
+
+/* Form Styling */
+.login-form h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: border 0.3s;
+}
+
+.input-group input:focus {
+  border-color: #4facfe;
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4facfe;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background-color: #00f2fe;
+}
+
+.signup-text {
+  text-align: center;
+  margin-top: 15px;
+  color: #555;
+}
+
+.signup-text a {
+  color: #4facfe;
+  text-decoration: none;
+}
+
+.signup-text a:hover {
+  text-decoration: underline;
+}
+
+
+
