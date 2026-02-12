@@ -121,8 +121,10 @@ body {
     animation: fireGlow 3s ease infinite;
 }
 
-.title::before {
-    content: "🐤 ";
+.logo {
+    height: 50px;
+    vertical-align: middle;
+    margin: 5px;
 }
 
 .title {
