@@ -22,6 +22,6 @@ docker compose up -d
 ```
 ## 2. Apply db migrations
 ```shell 
-goose up
+-- not done --
 ```
 
