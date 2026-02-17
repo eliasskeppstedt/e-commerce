@@ -1,7 +1,6 @@
-package handler
+package customer
 
 import (
-	"ecommerce/duckyarmy/internal/service"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -10,10 +9,10 @@ import (
 )
 
 type UserHandler struct {
-	service service.UsersService
+	service UsersService
 }
 
-func NewUserHandler(s service.UsersService) *UserHandler {
+func NewUserHandler(s UsersService) *UserHandler {
 	return &UserHandler{service: s}
 }
 

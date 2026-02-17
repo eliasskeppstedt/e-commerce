@@ -1,4 +1,4 @@
-package models
+package customer
 
 type User struct {
 	UserID   int

@@ -1,30 +1,13 @@
-package main
+package api
 
 import (
-	"database/sql"
-	"ecommerce/duckyarmy/configs"
-	"ecommerce/duckyarmy/internal/handler"
-	"ecommerce/duckyarmy/internal/repository"
-	"ecommerce/duckyarmy/internal/service"
+	"ecommerce/duckyarmy/internal/customer"
 	"fmt"
-	"log"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
-var appCfg configs.Config
-var db *sql.DB // where to store, in app config, any of its child structs or own struct???
-
-func main() {
-
-	// Create a Gin router with default middleware (logger and recovery)
-	engine := gin.Default()
-
-	//Load HTML files and css
-	engine.LoadHTMLGlob("web/html/*")
-	engine.Static("/styles", "./web/styles")
-
+func RegisterWebRouts(engine *gin.Engine) {
 	engine.GET("/ping", func(ctx *gin.Context) {
 		// Return JSON response
 		ctx.JSON(http.StatusOK, gin.H{
@@ -75,42 +58,8 @@ func main() {
 		ctx.HTML(http.StatusOK, "registerPage.html", gin.H{})
 		fmt.Println("registerpage Post Working")
 	})
+}
 
-	var err error
-	appCfg, err = configs.LoadDbCfg()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	dsnCfg := configs.LoadDsnCfg(&appCfg.DB) // unnecesary functions in config?
-
-	// Get a database handle.
-
-	db, err = sql.Open("mysql", dsnCfg.FormatDSN())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if pingErr := db.Ping(); pingErr != nil {
-		log.Fatal(pingErr)
-	}
-
-	fmt.Printf("\n -- Connected!\n\n")
-
-	// Start server on port 8080 (default)
-	// Server will listen on 0.0.0.0:8080 (localhost:8080 on Windows)
-	if err := engine.Run(); err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("engine")
-	repo := repository.NewUserRepository(db)
-	fmt.Println("check repo")
-	service := service.NewUserService(repo)
-	fmt.Println("check service")
-	handler := handler.NewUserHandler(service)
-	fmt.Println("check handler")
-
+func RegisterApiRouts(engine *gin.Engine, handler *customer.UserHandler) {
 	engine.GET("/user/:userID", handler.GetUsers)
-
 }
