@@ -15,10 +15,10 @@
 
 <nav class="menu-bar">
   <ul>
-    <li><a href="homepage.html">Home</a></li>
-    <li><a href="productspage.html">Products</a></li>
-    <li><a href="cartPage.html">Cart</a></li>
-    <li><a href="loginPage.html">Login</a></li>
+    <li><a href="/">Home</a></li>
+    <li><a href="products">Products</a></li>
+    <li><a href="cart">Cart</a></li>
+    <li><a href="login">Login</a></li>
     <li><a href="" class="active">Register</a></li>
   </ul>
 </nav>
@@ -28,20 +28,20 @@
 
 <body>
   <div class="signup-container">
-    <form class="signup-form">
+    <form class="signup-form" action="/register" method="POST">
       <h2>🔥 Create Your Account 🔥</h2>
 
-      <div class="input-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Choose a username" required>
-      </div>
+  <div class="input-group">
+    <label for="username">Username</label>
+    <input type="text" name="username" id="username" placeholder="Choose a username" required>
+  </div>
 
-      <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter password" required>
-      </div>
+  <div class="input-group">
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" placeholder="Enter password" required>
+  </div>
 
-      <div class="input-group">
+      <!--<div class="input-group">
         <label for="email">Email</label>
         <input type="email" id="email" placeholder="Enter your email" required>
       </div>
@@ -69,7 +69,7 @@
       <div class="input-group">
         <label for="phonenumber">Phone Number</label>
         <input type="tel" id="phonenumber" placeholder="Phone number" required>
-      </div>
+      </div> -->
 
       <!--<div class="checkbox-group">
         <label>
