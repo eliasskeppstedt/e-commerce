@@ -20,9 +20,9 @@ func main() {
 	engine := gin.Default()
 
 	fmt.Println("engine")
-	repo := customer.NewUserRepository(db)
+	repo := customer.NewMysqlUserRepository(db)
 	fmt.Println("check repo")
-	service := customer.NewUserService(repo)
+	service := customer.NewUserService1(repo)
 	fmt.Println("check service")
 	handler := customer.NewUserHandler(service)
 	fmt.Println("check handler")

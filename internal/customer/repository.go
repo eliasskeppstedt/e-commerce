@@ -4,32 +4,32 @@ import (
 	"database/sql"
 )
 
-type UserRepository interface {
-	GetByUserID(userID int) (User, error)
+type userRepository interface {
+	getByUserID(userID int) (user, error)
 }
 
-type userRepository struct {
+type mysqlUserRepository struct {
 	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) UserRepository {
-	return &userRepository{db: db}
+func NewMysqlUserRepository(db *sql.DB) *mysqlUserRepository {
+	return &mysqlUserRepository{db: db}
 }
 
-func (r *userRepository) GetByUserID(userID int) (User, error) {
+func (r *mysqlUserRepository) getByUserID(userID int) (user, error) {
 
 	query := "SELECT userID, userName, password FROM users WHERE userID = ?"
 
-	var user User
+	var user user
 
 	err := r.db.QueryRow(query, userID).
 		Scan(&user.UserID, &user.UserName, &user.Password)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return User{}, err
+			return user, err
 		}
-		return User{}, err
+		return user, err
 	}
 
 	return user, nil

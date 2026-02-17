@@ -9,10 +9,10 @@ import (
 )
 
 type UserHandler struct {
-	service UsersService
+	service userService
 }
 
-func NewUserHandler(s UsersService) *UserHandler {
+func NewUserHandler(s userService) *UserHandler {
 	return &UserHandler{service: s}
 }
 
@@ -23,7 +23,7 @@ func (h *UserHandler) GetUsers(ctx *gin.Context) {
 		fmt.Println("Felaktigt userID")
 		return
 	}
-	user, err2 := h.service.GetUsersByUserID(numid)
+	user, err2 := h.service.getUsersByUserID(numid)
 	if err2 != nil {
 		fmt.Println("Någonting har gått fel i users_handler")
 		return

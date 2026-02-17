@@ -1,6 +1,6 @@
 package customer
 
-type User struct {
+type user struct {
 	UserID   int
 	UserName string
 	Password string

@@ -1,17 +1,18 @@
 package customer
 
-type UsersService interface {
-	GetUsersByUserID(userID int) (User, error)
+type userService interface {
+	getUsersByUserID(userID int) (user, error)
 }
 
-type usersService struct {
-	repo UserRepository
+// uhm better name maybe 😅
+type userService1 struct {
+	repo userRepository
 }
 
-func NewUserService(r UserRepository) UsersService {
-	return &usersService{repo: r}
+func NewUserService1(r userRepository) *userService1 {
+	return &userService1{repo: r}
 }
 
-func (s *usersService) GetUsersByUserID(userID int) (User, error) {
-	return s.repo.GetByUserID(userID)
+func (s *userService1) getUsersByUserID(userID int) (user, error) {
+	return s.repo.getByUserID(userID)
 }
