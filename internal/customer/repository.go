@@ -26,7 +26,7 @@ func (r *mysqlUserRepository) getUserByUsername(username string) (user, error) {
 	var user user
 
 	err := r.db.QueryRow(query, username).
-		Scan(&user.UserID, &user.UserName, &user.Password, &user.EmailAddress)
+		Scan(&user.userID, &user.userName, &user.password, &user.emailAddress)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -52,12 +52,13 @@ func (r *mysqlUserRepository) create(username, password string) error {
 	).Scan(&existingUsername)
 
 	if username == existingUsername {
-		return err
+		return errors.Join(err, errors.New("^joined error: User already exists"))
 	}
 
+	dummyAddress := username + "." + password + "@gmail.com"
 	_, err = r.db.Exec(
 		"INSERT INTO users (userName, password, emailAddress) VALUES (?, ?, ?)",
-		username, password, "tmp.address@gmail.com",
+		username, password, dummyAddress,
 	)
 
 	if err != nil {
