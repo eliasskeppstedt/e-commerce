@@ -2,39 +2,66 @@ package main
 
 import (
 	"database/sql"
-	"ecommerce/duckyarmy/configs"
+	"ecommerce/duckyarmy/api"
+	"ecommerce/duckyarmy/internal/customer"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 	"log"
-	"net/http"
+	"os"
 )
 
-var appCfg configs.Config
 var db *sql.DB // where to store, in app config, any of its child structs or own struct???
 
 func main() {
+
 	// Create a Gin router with default middleware (logger and recovery)
 	engine := gin.Default()
 
-	engine.GET("/ping", func(ctx *gin.Context) {
-		// Return JSON response
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-		fmt.Println("message: good")
-	})
+	fmt.Println("engine")
+	repo := customer.NewMysqlUserRepository(db)
+	fmt.Println("check repo")
+	service := customer.NewUserService1(repo)
+	fmt.Println("check service")
+	handler := customer.NewUserHandler(service)
+	fmt.Println("check handler")
 
-	var err error
-	appCfg, err = configs.LoadDbCfg()
-	if err != nil {
+	//Load HTML files and css
+	engine.LoadHTMLGlob("web/html/*")
+	engine.Static("/styles", "./web/styles")
+	engine.Static("/icons", "./web/icons")
+
+	tmpDbConfig()
+
+	api.RegisterWebRouts(engine)
+	api.RegisterApiRouts(engine, handler)
+
+	// Start server on port 8080 (default)
+	// Server will listen on 0.0.0.0:8080 (localhost:8080 on Windows)
+	if err := engine.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func tmpDbConfig() {
+	if err := godotenv.Load(".env"); err != nil {
 		log.Fatal(err)
 	}
 
-	dsnCfg := configs.LoadDsnCfg(&appCfg.DB) // unnecesary functions in config?
+	// Capture connection properties.
+	cfg := mysql.NewConfig()
+	cfg.User = os.Getenv("DBUSER")
+	cfg.Passwd = os.Getenv("DBPASS")
+	cfg.Net = "tcp"
+	cfg.Addr = os.Getenv("DBURL")
+	cfg.DBName = os.Getenv("DBNAME")
 
 	// Get a database handle.
 
-	db, err = sql.Open("mysql", dsnCfg.FormatDSN())
+	var err error
+
+	db, err = sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -44,40 +71,4 @@ func main() {
 	}
 
 	fmt.Printf("\n -- Connected!\n\n")
-
-	test()
-	// Start server on port 8080 (default)
-	// Server will listen on 0.0.0.0:8080 (localhost:8080 on Windows)
-	if err := engine.Run(); err != nil {
-		log.Fatal(err)
-	}
-}
-
-type Users struct {
-	userID       int
-	userName     string
-	password     string
-	emailAddress string
-	firstName    string
-	lastName     string
-	address      string
-	zipCode      string
-	phoneNumber  string
-}
-
-// albumByID queries for the album with the specified ID.
-func test() {
-	// An album to hold data from the returned row.
-	var user Users
-	id := 1
-	row := db.QueryRow("SELECT * FROM users WHERE id = ?", id)
-	if err := row.Scan(&user.userID, &user.password, &user.emailAddress, &user.firstName, &user.lastName, &user.address, &user.zipCode, &user.phoneNumber); err != nil {
-		if err == sql.ErrNoRows {
-			//fmt.Errorf("albumsById %d: no such album", id)
-			fmt.Println("error 1")
-		}
-		//fmt.Errorf("albumsById %d: %v", id, err)
-		fmt.Println("error 2")
-	}
-	fmt.Println(row)
 }
