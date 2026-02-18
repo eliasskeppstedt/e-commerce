@@ -3,7 +3,6 @@ package customer
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,18 +11,13 @@ type UserHandler struct {
 	service userService
 }
 
-func NewUserHandler(s userService) *UserHandler {
+func NewUserHandler(s userService1) *UserHandler {
 	return &UserHandler{service: s}
 }
 
-func (h *UserHandler) GetUsers(ctx *gin.Context) {
-	userid := ctx.Param("userID")
-	numid, err1 := strconv.Atoi(userid)
-	if err1 != nil {
-		fmt.Println("Felaktigt userID")
-		return
-	}
-	user, err2 := h.service.getByID(numid)
+func (h *UserHandler) GetUserByUsername(ctx *gin.Context) {
+	username := ctx.Param("username")
+	user, err2 := h.service.getUserByUsername(username)
 	if err2 != nil {
 		fmt.Println("Någonting har gått fel i users_handler")
 		return

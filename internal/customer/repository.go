@@ -7,7 +7,7 @@ import (
 )
 
 type userRepository interface {
-	getByUserID(userID int) (user, error)
+	getUserByUsername(username string) (user, error)
 	create(username, password string) error
 }
 
@@ -19,14 +19,14 @@ func NewMysqlUserRepository(db *sql.DB) *mysqlUserRepository {
 	return &mysqlUserRepository{db: db}
 }
 
-func (r *mysqlUserRepository) getByUserID(userID int) (user, error) {
+func (r *mysqlUserRepository) getUserByUsername(username string) (user, error) {
 
 	query := "SELECT userID, userName, password FROM users WHERE userID = ?"
 
 	var user user
 
-	err := r.db.QueryRow(query, userID).
-		Scan(&user.UserID, &user.UserName, &user.Password)
+	err := r.db.QueryRow(query, username).
+		Scan(&user.UserID, &user.UserName, &user.Password, &user.EmailAddress)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

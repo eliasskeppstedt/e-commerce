@@ -1,7 +1,7 @@
 package customer
 
 type userService interface {
-	getByID(userID int) (user, error)
+	getUserByUsername(username string) (user, error)
 	register(username, password string) error
 }
 
@@ -14,8 +14,8 @@ func NewUserService1(r userRepository) *userService1 {
 	return &userService1{repo: r}
 }
 
-func (s *userService1) getByID(userID int) (user, error) {
-	return s.repo.getByUserID(userID)
+func (s *userService1) getUserByUsername(username string) (user, error) {
+	return s.repo.getUserByUsername(username)
 }
 
 func (s *userService1) register(username, password string) error {
