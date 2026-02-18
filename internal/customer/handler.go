@@ -11,7 +11,7 @@ type UserHandler struct {
 	service userService
 }
 
-func NewUserHandler(s userService1) *UserHandler {
+func NewUserHandler(s userService) *UserHandler {
 	return &UserHandler{service: s}
 }
 
@@ -25,6 +25,16 @@ func (h *UserHandler) GetUserByUsername(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
-func (h *UserHandler) Register(ctx *gin.Context) {
-	//implement
+func (h *UserHandler) RegisterUser(ctx *gin.Context) {
+	username := ctx.PostForm("username")
+	password := ctx.PostForm("password")
+
+	err := h.service.register(username, password)
+
+	if err != nil {
+		fmt.Println(err)
+		ctx.HTML(http.StatusBadRequest, "registerPage.html", gin.H{})
+	} else {
+		ctx.HTML(http.StatusOK, "productsPage.html", gin.H{})
+	}
 }
