@@ -40,25 +40,10 @@ func RegisterWebRouts(engine *gin.Engine) {
 }
 
 func RegisterApiRouts(engine *gin.Engine, handler *customer.UserHandler) {
-	engine.GET("/ping", func(ctx *gin.Context) {
-		// Return JSON response
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-		fmt.Println("message: good")
-	})
 	//Register handling
 	//Här registrerar sig användaren
-	engine.POST("/register", func(ctx *gin.Context) {
-		username := ctx.PostForm("username")
-		password := ctx.PostForm("password")
-
-		fmt.Println("Username:", username)
-		fmt.Println("Password:", password)
-
-		ctx.HTML(http.StatusOK, "registerPage.html", gin.H{})
-		fmt.Println("registerpage Post Working")
-	})
+	fmt.Println("registering user handler")
+	engine.POST("/register", handler.RegisterUser)
 
 	engine.GET("/user/:userID", handler.GetUsers)
 }

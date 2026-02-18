@@ -23,10 +23,26 @@ func (h *UserHandler) GetUsers(ctx *gin.Context) {
 		fmt.Println("Felaktigt userID")
 		return
 	}
-	user, err2 := h.service.getUsersByUserID(numid)
+	user, err2 := h.service.getByID(numid)
 	if err2 != nil {
 		fmt.Println("Någonting har gått fel i users_handler")
 		return
 	}
 	ctx.JSON(http.StatusOK, user)
+}
+
+func (h *UserHandler) RegisterUser(ctx *gin.Context) {
+	fmt.Println("in user handler register user")
+	username := ctx.PostForm("username")
+	password := ctx.PostForm("password")
+
+	err := h.service.register(username, password)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	ctx.HTML(http.StatusOK, "registerPage.html", gin.H{})
+	fmt.Println("registerpage Post Working")
 }

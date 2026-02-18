@@ -19,6 +19,7 @@ func main() {
 	// Create a Gin router with default middleware (logger and recovery)
 	engine := gin.Default()
 
+	tmpDbConfig()
 	fmt.Println("engine")
 	repo := customer.NewMysqlUserRepository(db)
 	fmt.Println("check repo")
@@ -31,8 +32,6 @@ func main() {
 	engine.LoadHTMLGlob("web/html/*")
 	engine.Static("/styles", "./web/styles")
 	engine.Static("/icons", "./web/icons")
-
-	tmpDbConfig()
 
 	api.RegisterWebRouts(engine)
 	api.RegisterApiRouts(engine, handler)
