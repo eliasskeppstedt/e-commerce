@@ -1,13 +1,13 @@
 package customer
 
 type user struct {
-	userID       int
-	userName     string
-	password     string
-	emailAddress string
-	//firstName    string
-	//lastName     string
-	//address      string
-	//zipCode      string
-	//phoneNumber  string
+	UserID       int    `json:"userId"`
+	UserName     string `json:"userName"`
+	Password     string `json:"password"`
+	EmailAddress string `json:"emailAddress"`
+	// FirstName    string `json:"firstName"`
+	// LastName     string `json:"lastName"`
+	// Address      string `json:"address"`
+	// ZipCode      string `json:"zipCode"`
+	// PhoneNumber  string `json:"phoneNumber"`
 }

@@ -8,20 +8,20 @@ import (
 
 type userRepository interface {
 	getUserByUsername(username string) (user, error)
-	create(username, password string) error
+	registerUser(username, password, emailaddress string) error
 }
 
-type mysqlUserRepository struct {
+type UserRepository struct {
 	db *sql.DB
 }
 
-func NewMysqlUserRepository(db *sql.DB) *mysqlUserRepository {
-	return &mysqlUserRepository{db: db}
+func NewMysqlUserRepository(db *sql.DB) *UserRepository {
+	return &UserRepository{db: db}
 }
 
-func (r *mysqlUserRepository) getUserByUsername(username string) (user, error) {
+func (r *UserRepository) getUserByUsername(username string) (user, error) {
 
-	query := "SELECT userID, userName, password FROM users WHERE userID = ?"
+	query := "SELECT * FROM users WHERE username = ?"
 
 	var user user
 
@@ -38,35 +38,11 @@ func (r *mysqlUserRepository) getUserByUsername(username string) (user, error) {
 	return user, nil
 }
 
-func (r *mysqlUserRepository) create(username, password string) error {
-	var existingUsername string
+func (r *UserRepository) registerUser(username, password, emailaddress string) (err error) {
+	//If username already exist and username is Unique this will give an error
+	query := "INSERT INTO user (username, password, emailaddress) VALUES (?,?,?)"
 
-	if r.db == nil {
-		fmt.Println(r.db)
-		return errors.New("DB conenction doesnt exist in repo")
-	}
+	_, err = r.db.Exec(query, username, password, emailaddress)
 
-	err := r.db.QueryRow(
-		"SELECT userName FROM users WHERE userName = ?",
-		username,
-	).Scan(&existingUsername)
-
-	if username == existingUsername {
-		return errors.Join(err, errors.New("^joined error: User already exists"))
-	}
-
-	dummyAddress := username + "." + password + "@gmail.com"
-	_, err = r.db.Exec(
-		"INSERT INTO users (userName, password, emailAddress) VALUES (?, ?, ?)",
-		username, password, dummyAddress,
-	)
-
-	if err != nil {
-		return errors.Join(err, errors.New("^joined error: Cant create user"))
-	}
-
-	fmt.Println("Username:", username)
-	fmt.Println("Password:", password)
-
-	return nil
+	return
 }

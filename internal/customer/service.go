@@ -18,7 +18,6 @@ func (s *userService1) getUserByUsername(username string) (user, error) {
 	return s.repo.getUserByUsername(username)
 }
 
-func (s *userService1) register(username, password string) error {
-	// eventualla krav för hur un och pwd måste se ut
-	return s.repo.create(username, password)
+func (s *userService1) registerUser(username, password, emailaddress string) error {
+	return s.repo.registerUser(username, password, emailaddress)
 }
