@@ -2,6 +2,8 @@ package customer
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 )
 
 type userRepository interface {
@@ -24,7 +26,7 @@ func (r *UserRepository) getUserByUsername(username string) (user, error) {
 	var user user
 
 	err := r.db.QueryRow(query, username).
-		Scan(&user.UserID, &user.UserName, &user.Password, &user.EmailAddress)
+		Scan(&user.userID, &user.userName, &user.password, &user.emailAddress)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

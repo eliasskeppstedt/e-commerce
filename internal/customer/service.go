@@ -2,6 +2,7 @@ package customer
 
 type userService interface {
 	getUserByUsername(username string) (user, error)
+	register(username, password string) error
 }
 
 // uhm better name maybe 😅
