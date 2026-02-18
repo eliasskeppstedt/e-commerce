@@ -1,10 +1,10 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE `categories` (
-  `categoryID` int NOT NULL AUTO_INCREMENT,
-  `categoryName` varchar(25) NOT NULL,
-  UNIQUE KEY `categoryID` (`categoryID`),
-  UNIQUE KEY `categoryName` (`categoryName`)
+  `category_id` int NOT NULL AUTO_INCREMENT,
+  `category_name` varchar(25) NOT NULL,
+  UNIQUE KEY `category_id` (`category_id`),
+  UNIQUE KEY `category_name` (`category_name`)
 );
 -- +goose StatementEnd
 

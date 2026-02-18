@@ -1,13 +1,13 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE `orderItems` (
-  `productID` int NOT NULL,
+  `product_id` int NOT NULL,
   `quantity` int NOT NULL,
-  `orderID` int NOT NULL AUTO_INCREMENT,
-  KEY `productID` (`productID`),
-  KEY `orderID_idx` (`orderID`),
-  CONSTRAINT `orderID` FOREIGN KEY (`orderID`) REFERENCES `orders` (`orderID`),
-  CONSTRAINT `orderItems_ibfk_1` FOREIGN KEY (`productID`) REFERENCES `products` (`productID`)
+  `order_id` int NOT NULL AUTO_INCREMENT,
+  KEY `product_id` (`product_id`),
+  KEY `order_id_idx` (`order_id`),
+  CONSTRAINT `order_id` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`),
+  CONSTRAINT `orderItems_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`)
 );
 -- +goose StatementEnd
 

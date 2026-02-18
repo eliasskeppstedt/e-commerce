@@ -2,7 +2,7 @@ package customer
 
 type userService interface {
 	getUserByUsername(username string) (user, error)
-	register(username, password string) error
+	registerUser(username, password string) error
 }
 
 // uhm better name maybe 😅
@@ -18,6 +18,6 @@ func (s *userService1) getUserByUsername(username string) (user, error) {
 	return s.repo.getUserByUsername(username)
 }
 
-func (s *userService1) registerUser(username, password, emailaddress string) error {
-	return s.repo.registerUser(username, password, emailaddress)
+func (s *userService1) registerUser(username, password, email string) error {
+	return s.repo.registerUser(username, password, email)
 }

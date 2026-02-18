@@ -42,7 +42,7 @@ func RegisterWebRouts(engine *gin.Engine) {
 func RegisterApiRouts(engine *gin.Engine, handler *customer.UserHandler) {
 	// registrera handlers för kund
 	fmt.Println("registering user handler")
-	engine.POST("/api/register", handler.RegisterUser)
+	engine.POST("/api/register", handler.CreateAccount)
 
 	engine.GET("/api/user/:userID", handler.GetUserByUsername)
 }

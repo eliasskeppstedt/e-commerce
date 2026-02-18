@@ -2,31 +2,31 @@ package customer
 
 import (
 	"database/sql"
-	"errors"
+	_ "errors"
 	"fmt"
 )
 
 type userRepository interface {
 	getUserByUsername(username string) (user, error)
-	registerUser(username, password, emailaddress string) error
+	registerUser(username, password, email string) error
 }
 
-type UserRepository struct {
+type mysqlUserRepository struct {
 	db *sql.DB
 }
 
-func NewMysqlUserRepository(db *sql.DB) *UserRepository {
-	return &UserRepository{db: db}
+func NewMysqlUserRepository(db *sql.DB) *mysqlUserRepository {
+	return &mysqlUserRepository{db: db}
 }
 
-func (r *UserRepository) getUserByUsername(username string) (user, error) {
+func (r *mysqlUserRepository) getUserByUsername(username string) (user, error) {
 
 	query := "SELECT * FROM users WHERE username = ?"
 
 	var user user
 
 	err := r.db.QueryRow(query, username).
-		Scan(&user.userID, &user.userName, &user.password, &user.emailAddress)
+		Scan(&user.UserID, &user.UserName, &user.Password, &user.Email)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -38,11 +38,14 @@ func (r *UserRepository) getUserByUsername(username string) (user, error) {
 	return user, nil
 }
 
-func (r *UserRepository) registerUser(username, password, emailaddress string) (err error) {
+func (r *mysqlUserRepository) registerUser(username, password, email string) (err error) {
 	//If username already exist and username is Unique this will give an error
-	query := "INSERT INTO user (username, password, emailaddress) VALUES (?,?,?)"
 
-	_, err = r.db.Exec(query, username, password, emailaddress)
+	_, err = r.db.Exec(
+		"INSERT INTO users (username, password, email_address) VALUES (?,?,?)",
+		username, password, email,
+	)
+	fmt.Println("hej")
 
 	return
 }
