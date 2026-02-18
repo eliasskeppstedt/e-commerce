@@ -30,6 +30,7 @@ func main() {
 	//Load HTML files and css
 	engine.LoadHTMLGlob("web/html/*")
 	engine.Static("/styles", "./web/styles")
+	engine.Static("/icons", "./web/icons")
 
 	tmpDbConfig()
 

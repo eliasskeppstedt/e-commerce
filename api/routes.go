@@ -8,14 +8,6 @@ import (
 )
 
 func RegisterWebRouts(engine *gin.Engine) {
-	engine.GET("/ping", func(ctx *gin.Context) {
-		// Return JSON response
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-		fmt.Println("message: good")
-	})
-
 	//standard sidor
 	engine.GET("/", func(ctx *gin.Context) {
 		// Return HTTP response
@@ -45,7 +37,16 @@ func RegisterWebRouts(engine *gin.Engine) {
 		ctx.HTML(http.StatusOK, "registerPage.html", gin.H{})
 		fmt.Println("productspage works")
 	})
+}
 
+func RegisterApiRouts(engine *gin.Engine, handler *customer.UserHandler) {
+	engine.GET("/ping", func(ctx *gin.Context) {
+		// Return JSON response
+		ctx.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+		fmt.Println("message: good")
+	})
 	//Register handling
 	//Här registrerar sig användaren
 	engine.POST("/register", func(ctx *gin.Context) {
@@ -58,8 +59,6 @@ func RegisterWebRouts(engine *gin.Engine) {
 		ctx.HTML(http.StatusOK, "registerPage.html", gin.H{})
 		fmt.Println("registerpage Post Working")
 	})
-}
 
-func RegisterApiRouts(engine *gin.Engine, handler *customer.UserHandler) {
 	engine.GET("/user/:userID", handler.GetUsers)
 }
