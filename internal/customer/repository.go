@@ -42,7 +42,7 @@ func (r *mysqlUserRepository) registerUser(username, password, email string) (er
 	//If username already exist and username is Unique this will give an error
 
 	_, err = r.db.Exec(
-		"INSERT INTO users (username, password, email_address) VALUES (?,?,?)",
+		"INSERT INTO users (username, password, email) VALUES (?,?,?)",
 		username, password, email,
 	)
 	fmt.Println("hej")
