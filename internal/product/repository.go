@@ -21,7 +21,7 @@ func NewMysqlProductRepository(db *sql.DB) *mysqlProductRepository {
 	return &mysqlProductRepository{db: db}
 }
 
-func (r *mysqlProductRepository) getByproductID(product_id int) (product, error) {
+func (r *mysqlProductRepository) getByProductID(product_id int) (product, error) {
 	var p product
 	err := r.db.QueryRow(
 		"SELECT id, name, description, price, category_id FROM products WHERE id = ?", product_id).

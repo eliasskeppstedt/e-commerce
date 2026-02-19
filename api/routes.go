@@ -52,5 +52,5 @@ func RegisterApiRouts(
 	engine.POST("/api/users/register", userHandler.CreateAccount)
 	engine.GET("/api/users/:user_id", userHandler.GetUserByUsername)
 
-	engine.POST("/api/products/register", productHandler)
+	engine.GET("/api/products", productHandler.GetProducts)
 }
