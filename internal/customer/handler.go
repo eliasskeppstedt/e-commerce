@@ -2,8 +2,9 @@ package customer
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
@@ -34,9 +35,9 @@ func (h *UserHandler) CreateAccount(ctx *gin.Context) {
 	err := h.service.registerUser(username, password, email)
 	if err != nil {
 		fmt.Println("Problem med att registrera användare")
-		ctx.HTML(http.StatusBadRequest, "productsPage.html", gin.H{})
+		ctx.Redirect(http.StatusSeeOther, "/register")
 	} else {
-		fmt.Println("Problem med att registrera användare")
-		ctx.HTML(http.StatusOK, "productsPage.html", gin.H{})
+		fmt.Println("Register Success")
+		ctx.Redirect(http.StatusSeeOther, "/login")
 	}
 }
