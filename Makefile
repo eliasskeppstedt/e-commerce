@@ -8,7 +8,8 @@ dbreset:
 	docker compose down -v
 	docker compose up -d
 
-dbmigrate-latest:
+dbreset:
+	goose reset
 	goose up
 
 run:
