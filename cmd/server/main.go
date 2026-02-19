@@ -4,29 +4,35 @@ import (
 	"database/sql"
 	"ecommerce/duckyarmy/api"
 	"ecommerce/duckyarmy/internal/customer"
+	"ecommerce/duckyarmy/internal/product"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
-	"log"
-	"os"
 )
 
-var db *sql.DB // where to store, in app config, any of its child structs or own struct???
-
 func main() {
+
+	var db *sql.DB // where to store, in app config, any of its child structs or own struct???
 
 	// Create a Gin router with default middleware (logger and recovery)
 	engine := gin.Default()
 
-	tmpDbConfig()
+	tmpDbConfig(db)
 	fmt.Println("engine")
-	repo := customer.NewMysqlUserRepository(db)
+	userRepo := customer.NewMysqlUserRepository(db)
 	fmt.Println("check repo")
-	service := customer.NewUserService1(repo)
+	userService := customer.NewUserService1(userRepo)
 	fmt.Println("check service")
-	handler := customer.NewUserHandler(service)
+	userHandler := customer.NewUserHandler(userService)
 	fmt.Println("check handler")
+
+	productRepo := product.NewMysqlProductRepository(db)
+	productService := product.NewProductService(productRepo)
+	productHandler := product.NewProductHandler(productService)
 
 	//Load HTML files and css
 	engine.LoadHTMLGlob("web/html/*")
@@ -34,7 +40,7 @@ func main() {
 	engine.Static("/icons", "./web/icons")
 
 	api.RegisterWebRouts(engine)
-	api.RegisterApiRouts(engine, handler)
+	api.RegisterApiRouts(engine, userHandler, productHandler)
 
 	// Start server on port 8080 (default)
 	// Server will listen on 0.0.0.0:8080 (localhost:8080 on Windows)
@@ -43,7 +49,8 @@ func main() {
 	}
 }
 
-func tmpDbConfig() {
+func tmpDbConfig(db *sql.DB) {
+
 	if err := godotenv.Load(".env"); err != nil {
 		log.Fatal(err)
 	}

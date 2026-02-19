@@ -2,9 +2,11 @@ package api
 
 import (
 	"ecommerce/duckyarmy/internal/customer"
+	"ecommerce/duckyarmy/internal/product"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func RegisterWebRouts(engine *gin.Engine) {
@@ -39,10 +41,16 @@ func RegisterWebRouts(engine *gin.Engine) {
 	})
 }
 
-func RegisterApiRouts(engine *gin.Engine, handler *customer.UserHandler) {
+func RegisterApiRouts(
+	engine *gin.Engine,
+	userHandler *customer.UserHandler,
+	productHandler *product.ProductHandler,
+) {
+
 	// registrera handlers för kund
 	fmt.Println("registering user handler")
-	engine.POST("/api/register", handler.CreateAccount)
+	engine.POST("/api/users/register", userHandler.CreateAccount)
+	engine.GET("/api/users/:user_id", userHandler.GetUserByUsername)
 
-	engine.GET("/api/user/:userID", handler.GetUserByUsername)
+	engine.POST("/api/products/register", productHandler)
 }

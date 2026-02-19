@@ -1,9 +1,8 @@
-package products
+package product
 
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,16 +16,16 @@ func NewProductHandler(s productService) *ProductHandler {
 }
 
 func (h *ProductHandler) GetProducts(ctx *gin.Context) {
-	productid := ctx.Param("productID")
-	numid, err1 := strconv.Atoi(productid)
-	if err1 != nil {
-		fmt.Println("Felaktigt productID")
-		return
-	}
-	product, err2 := h.service.getProductsByProductID(numid)
+	productId := ctx.PostForm("product_id")
+
+	product, err2 := h.service.getByProductID(productId)
 	if err2 != nil {
 		fmt.Println("Någonting har gått fel i products_handler")
 		return
 	}
 	ctx.JSON(http.StatusOK, product)
+}
+
+func (s *ProductHandler) DeleteProduct(ctx *gin.Context) error {
+	return nil
 }
