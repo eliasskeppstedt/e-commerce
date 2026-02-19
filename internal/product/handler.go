@@ -25,6 +25,7 @@ func (h *ProductHandler) GetProducts(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid Product_id",
 		})
+		return
 	}
 
 	product, err2 := h.service.getByProductID(id)
