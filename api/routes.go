@@ -45,6 +45,7 @@ func RegisterApiRouts(
 	engine *gin.Engine,
 	userHandler *customer.UserHandler,
 	productHandler *product.ProductHandler,
+
 ) {
 
 	// registrera handlers för kund
@@ -53,4 +54,5 @@ func RegisterApiRouts(
 	engine.GET("/api/users/:user_id", userHandler.GetUserByUsername)
 
 	engine.GET("/api/products", productHandler.GetProducts)
+	engine.POST("/api/products", productHandler.CreateProduct)
 }

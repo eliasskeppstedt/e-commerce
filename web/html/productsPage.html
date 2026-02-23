@@ -13,54 +13,34 @@
 
 <nav class="menu-bar">
   <ul>
-    <li><a href="/" >Home</a></li>
-    <li><a href="" class = "active">Products</a></li>
+    <li><a href="/">Home</a></li>
+    <li><a class="active">Products</a></li>
     <li><a href="cart">Cart</a></li>
     <li><a href="login">Login</a></li>
     <li><a href="register">Register</a></li>
   </ul>
 </nav>
-</body>
 
-<body>
+<div class="container">
+  <div class="product-grid" id="productGrid">
+    <!-- Products will be rendered here -->
+  </div>
+</div>
 
-    <div class="container">
-        <div class="product-grid">
+<div class="add-product">
+  <h2>Add Product</h2>
 
-            <div class="product-card">
-                <div class="product-image"></div>
-                <div class="product-content">
-                    <div class="placeholder"></div>
-                    <div class="placeholder"></div>
-                </div>
-            </div>
+  <input id="name" placeholder="Product Name" />
+  <input id="description" placeholder="Description" />
+  <input id="manufacturer" placeholder="Manufacturer" />
+  <input id="stock" type="number" placeholder="Stock" />
+  <input id="price" type="number" step="0.01" placeholder="Price" />
+  <input id="category" placeholder="Category Name" />
 
-            <div class="product-card">
-                <div class="product-image"></div>
-                <div class="product-content">
-                    <div class="placeholder"></div>
-                    <div class="placeholder"></div>
-                </div>
-            </div>
 
-            <div class="product-card">
-                <div class="product-image"></div>
-                <div class="product-content">
-                    <div class="placeholder"></div>
-                    <div class="placeholder"></div>
-                </div>
-            </div>
+  <button onclick="addProduct()">Add Product</button>
+</div>
 
-            <div class="product-card">
-                <div class="product-image"></div>
-                <div class="product-content">
-                    <div class="placeholder"></div>
-                    <div class="placeholder"></div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
+<script src="/scripts/products.js"></script>
 </body>
 </html>
