@@ -36,6 +36,7 @@ func main() {
 	engine.LoadHTMLGlob("web/html/*")
 	engine.Static("/styles", "./web/styles")
 	engine.Static("/icons", "./web/icons")
+	engine.Static("/scripts", "./web/scripts")
 
 	// Register routes
 	api.RegisterWebRouts(engine)

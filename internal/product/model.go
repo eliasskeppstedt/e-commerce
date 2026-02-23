@@ -1,9 +1,11 @@
 package product
 
-type product struct {
-	ID          int     `json:"id"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	CategoryID  int     `json:"category_id"`
+type Product struct {
+	ProductID    int     `json:"product_id"`
+	ProductName  string  `json:"product_name"`
+	Stock        int     `json:"stock"`
+	Price        float64 `json:"price"`
+	Manufacturer string  `json:"manufacturer"`
+	Description  string  `json:"description"`
+	CategoryName string  `json:"category_name"`
 }
