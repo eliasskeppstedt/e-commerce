@@ -1,6 +1,7 @@
 package api
 
 import (
+	"ecommerce/duckyarmy/internal/cart"
 	"ecommerce/duckyarmy/internal/customer"
 	"ecommerce/duckyarmy/internal/product"
 	"fmt"
@@ -45,6 +46,7 @@ func RegisterApiRouts(
 	engine *gin.Engine,
 	userHandler *customer.UserHandler,
 	productHandler *product.ProductHandler,
+	cartHandler *cart.CartHandler,
 
 ) {
 
@@ -55,4 +57,7 @@ func RegisterApiRouts(
 
 	engine.GET("/api/products", productHandler.GetProducts)
 	engine.POST("/api/products", productHandler.CreateProduct)
+
+	//engine.POST("/api/carts/register", )
+	//engine.POST("/api/to/cart_items/product_number", cartHandler.CartItemAdd)
 }

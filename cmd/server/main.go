@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"ecommerce/duckyarmy/api"
+	"ecommerce/duckyarmy/internal/cart"
 	"ecommerce/duckyarmy/internal/customer"
 	"ecommerce/duckyarmy/internal/product"
 	"fmt"
@@ -32,6 +33,10 @@ func main() {
 	productService := product.NewProductServiceImp(productRepo)
 	productHandler := product.NewProductHandler(productService)
 
+	cartRepo := cart.NewMysqlCartRepository(db)
+	cartService := cart.NewCartService1(productRepo, cartRepo)
+	cartHandler := cart.NewCartHandler(cartService)
+
 	// Load HTML and static files
 	engine.LoadHTMLGlob("web/html/*")
 	engine.Static("/styles", "./web/styles")
@@ -40,7 +45,7 @@ func main() {
 
 	// Register routes
 	api.RegisterWebRouts(engine)
-	api.RegisterApiRouts(engine, userHandler, productHandler)
+	api.RegisterApiRouts(engine, userHandler, productHandler, cartHandler)
 
 	// Start server
 	if err := engine.Run(":8080"); err != nil {

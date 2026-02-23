@@ -8,10 +8,10 @@ type productService interface {
 }
 
 type productServiceImp struct {
-	repo productRepository
+	repo ProductRepository
 }
 
-func NewProductServiceImp(r productRepository) *productServiceImp {
+func NewProductServiceImp(r ProductRepository) *productServiceImp {
 	return &productServiceImp{repo: r}
 }
 
