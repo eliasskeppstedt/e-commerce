@@ -7,7 +7,7 @@ CREATE TABLE `products` (
   `price` float NOT NULL,
   `manufacturer` varchar(100) NOT NULL,
   `description`varchar(255) NOT NULL,
-  `category_name` varchar(25) NOT NULL UNIQUE KEY,
+  `category_name` varchar(25) NOT NULL,
   PRIMARY KEY (`product_id`),
   FOREIGN KEY (`category_name`) REFERENCES `categories` (`category_name`) 
 );
