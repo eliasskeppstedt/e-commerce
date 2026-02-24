@@ -1,0 +1,13 @@
+How to use middleware in main:
+
+protected := r.Group("/")
+protected.Use(auth.JWTMiddleware())
+{
+	protected.GET("/dashboard", userHandler.Dashboard)
+}
+
+Remembers important rules:
+    * Handler should never manually parse JWTMiddleware
+    * Service should never read cookies
+    * Repo should never know about JWT 
+
