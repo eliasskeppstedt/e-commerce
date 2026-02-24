@@ -6,7 +6,7 @@ import "database/sql"
 type productRepository interface {
 	getByProductID(productID int) (Product, error)
 	getAll() ([]Product, error)
-	registerProduct(p Product) error
+	registerProduct(product Product) error
 	deleteProduct(id int) error
 }
 

@@ -3,6 +3,7 @@ package product
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -45,6 +46,20 @@ func (h *ProductHandler) CreateProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"message": "Product created"})
 }
 
-func (h *ProductHandler) DeleteProduct(ctx *gin.Context) error {
-	return nil
+func (h *ProductHandler) DeleteProduct(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
+		return
+	}
+
+	if err := h.service.deleteProduct(id); err != nil {
+		fmt.Println("DELETE PRODUCT ERROR:", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete product"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Product deleted"})
 }

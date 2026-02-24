@@ -53,6 +53,9 @@ func RegisterApiRouts(
 	engine.POST("/api/users/register", userHandler.CreateAccount)
 	engine.GET("/api/users/:user_id", userHandler.GetUserByUsername)
 
+	// handlers för produkter
 	engine.GET("/api/products", productHandler.GetProducts)
 	engine.POST("/api/products", productHandler.CreateProduct)
+	engine.DELETE("/api/products/:id", productHandler.DeleteProduct)
+
 }

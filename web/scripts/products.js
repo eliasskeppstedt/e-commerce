@@ -1,6 +1,6 @@
 console.log("products.js loaded successfully");
 
-// Visar ett produkt "kort"
+//---vvv--- Funktioner för att lägga till produkter nedan ---vvv---
 function renderProduct(p) {
   const grid = document.getElementById("productGrid");
   const card = document.createElement("div");
@@ -10,13 +10,18 @@ function renderProduct(p) {
     <div class="product-image"></div>
     <div class="product-content">
       <h3>${p.product_name}</h3>
-      <p>Description: ${p.description}</p>
+      <p>${p.description}</p>
       <p>Manufacturer: ${p.manufacturer}</p>
       <p>Stock: ${p.stock}</p>
       <p>Category: ${p.category_name}</p>
       <strong>${p.price} SEK</strong>
+      <br />
+      <button class="delete-btn">Delete</button>
     </div>
   `;
+
+  card.querySelector(".delete-btn").onclick = () =>
+    deleteProduct(p.product_id, card);
 
   grid.appendChild(card);
 }
@@ -53,7 +58,7 @@ function addProduct() {
   .then(data => {
     console.log("Server response:", data);
     alert("Product added!");
-    renderProduct(product); // Visar produkten direkt på hemsidan 
+    renderProduct(product); // Visar produkten direkt på hemsidan EPIC
     
     document.getElementById("name").value = "";
     document.getElementById("manufacturer").value = "";
@@ -63,4 +68,19 @@ function addProduct() {
     document.getElementById("category").value = "";
   })
   .catch(err => console.error("Error adding product:", err));
+}
+
+
+//---vvv--- Funktioner för att ta bort produkter nedan ---vvv---
+function deleteProduct(productId, cardElement) {
+  if (!confirm("Are you sure you want to delete this product?")) return;
+
+  fetch(`/api/products/${productId}`, {
+    method: "DELETE"
+  })
+  .then(res => res.json())
+  .then(() => {
+    cardElement.remove(); // tar bort produkten INSTANT WOWIE
+  })
+  .catch(err => console.error("Delete failed:", err));
 }
