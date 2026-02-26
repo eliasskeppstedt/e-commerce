@@ -9,15 +9,17 @@ import (
 var jwtKey = []byte("super-secret")
 
 type Claims struct {
-	UserID uint `json:"user_id"`
+	UserID  uint   `json:"user_id"`
+	IsAdmin string `json:"is_admin"`
 	jwt.RegisteredClaims
 }
 
 func GenerateToken(userID uint) (string, error) {
 	claims := Claims{
-		UserID: userID,
+		UserID:  userID,
+		IsAdmin: is_admin,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
 		},
 	}
 

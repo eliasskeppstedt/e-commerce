@@ -6,12 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func JWTMiddleware() gin.HandlerFunc {
+func Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		tokenString, err := c.Cookie("auth_token")
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+			c.Next()
 			return
 		}
 
@@ -22,6 +22,8 @@ func JWTMiddleware() gin.HandlerFunc {
 		}
 
 		c.Set("userID", claims.UserID)
+		c.Set("isAdmin", claims.IsAdmin)
+
 		c.Next()
 	}
 }
