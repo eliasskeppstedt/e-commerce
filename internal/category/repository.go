@@ -1,6 +1,9 @@
 package category
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
 
 // Interface
 type categoryRepository interface {
@@ -20,7 +23,7 @@ func NewMysqlCategoryRepository(db *sql.DB) *mysqlCategoryRepository {
 
 // HÄMTAR ALLA KATEGORIER
 func (r *mysqlCategoryRepository) getAll() ([]Category, error) {
-	rows, err := r.db.Query("SELECT category_id, category_name FROM categories")
+	rows, err := r.db.Query(`SELECT category_id, category_name FROM categories`)
 	if err != nil {
 		return nil, err
 	}
@@ -29,23 +32,18 @@ func (r *mysqlCategoryRepository) getAll() ([]Category, error) {
 	var categories []Category
 	for rows.Next() {
 		var c Category
-		if err := rows.Scan(
-			&c.CategoryID,
-			&c.CategoryName,
-		); err != nil {
+		if err := rows.Scan(&c.CategoryID, &c.CategoryName); err != nil {
 			return nil, err
 		}
 		categories = append(categories, c)
 	}
-
 	return categories, nil
 }
 
 func (r *mysqlCategoryRepository) createCategory(c Category) error {
 	_, err := r.db.Exec(`
-		INSERT INTO categories (category_id, category_name)
-		Values (?, ?)`,
-		c.CategoryID,
+		INSERT INTO categories (category_name)
+		Values (?)`,
 		c.CategoryName,
 	)
 	return err
@@ -53,6 +51,18 @@ func (r *mysqlCategoryRepository) createCategory(c Category) error {
 
 // TA BORT KATEGORI
 func (r *mysqlCategoryRepository) deleteCategory(id int) error {
-	_, err := r.db.Exec("DELETE FROM categories WHERE category_id = ?", id)
-	return err
+	res, err := r.db.Exec("DELETE FROM categories WHERE category_id = ?", id)
+	if err != nil {
+		return err
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return fmt.Errorf("category not found")
+	}
+	return nil
 }

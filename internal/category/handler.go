@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -49,7 +50,6 @@ func (h *CategoryHandler) CreateCategory(ctx *gin.Context) {
 
 func (h *CategoryHandler) DeleteCategory(ctx *gin.Context) {
 	idStr := ctx.Param("id")
-
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid category ID"})
@@ -57,11 +57,15 @@ func (h *CategoryHandler) DeleteCategory(ctx *gin.Context) {
 	}
 
 	if err := h.service.deleteCategory(id); err != nil {
-		fmt.Println("DELETE PRODUCT ERROR:", err)
+		// Check for FK constraint
+		if strings.Contains(err.Error(), "foreign key constraint") {
+			ctx.JSON(http.StatusConflict, gin.H{"error": "Cannot delete category with products"})
+			return
+		}
+		fmt.Println("DELETE CATEGORY ERROR:", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete category"})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Category deleted"})
-
 }

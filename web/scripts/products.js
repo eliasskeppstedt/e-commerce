@@ -1,6 +1,6 @@
 console.log("products.js loaded successfully");
 
-//---vvv--- Funktioner för att lägga till produkter nedan ---vvv---
+// --- Render a single product card ---
 function renderProduct(p) {
   const grid = document.getElementById("productGrid");
   const card = document.createElement("div");
@@ -21,66 +21,78 @@ function renderProduct(p) {
   `;
 
   card.querySelector(".delete-btn").onclick = () =>
-    deleteProduct(p.product_id, card);
+    deleteProduct(p.product_id);
 
   grid.appendChild(card);
 }
 
-// Laddar in produkter från servern och renderar dom
-fetch("/api/products")
-  .then(res => res.json())
-  .then(products => {
-    const grid = document.getElementById("productGrid");
-    grid.innerHTML = ""; // Clear any placeholder content
-    products.forEach(p => renderProduct(p));
-  })
-  .catch(err => console.error("Failed to load products:", err));
+// --- Load and filter products ---
+function filterProductsByCategory(categoryId) {
+  fetch("/api/products")
+    .then(res => res.json())
+    .then(products => {
+      const grid = document.getElementById("productGrid");
+      grid.innerHTML = ""; // Clear previous products
 
-// Lägger till en ny produkt
+      // Parse categoryId to int
+      const filterId = parseInt(categoryId) || 0;
+
+      products
+        .filter(p => !filterId || p.category_id === filterId)
+        .forEach(p => renderProduct(p));
+    })
+    .catch(err => console.error("Failed to load products:", err));
+}
+
+// --- Add new product ---
 function addProduct() {
+  const categorySelect = document.getElementById("categorySelectForAdd");
+  const categoryId = parseInt(categorySelect.value || "0");
+  if (!categoryId) return alert("Please select a category!");
+
   const product = {
     product_name: document.getElementById("name").value,
     manufacturer: document.getElementById("manufacturer").value || "",
     stock: parseInt(document.getElementById("stock").value || "0"),
     price: parseFloat(document.getElementById("price").value || "0"),
     description: document.getElementById("description").value || "",
-    category_name: document.getElementById("category").value || ""
+    category_id: categoryId
   };
-
-  console.log("Adding product:", product);
 
   fetch("/api/products", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(product)
   })
-  .then(res => res.json())
-  .then(data => {
-    console.log("Server response:", data);
-    alert("Product added!");
-    renderProduct(product); // Visar produkten direkt på hemsidan EPIC
-    
-    document.getElementById("name").value = "";
-    document.getElementById("manufacturer").value = "";
-    document.getElementById("stock").value = "";
-    document.getElementById("price").value = "";
-    document.getElementById("description").value = "";
-    document.getElementById("category").value = "";
-  })
-  .catch(err => console.error("Error adding product:", err));
+    .then(res => res.json())
+    .then(() => {
+      // Clear form
+      document.getElementById("name").value = "";
+      document.getElementById("manufacturer").value = "";
+      document.getElementById("stock").value = "";
+      document.getElementById("price").value = "";
+      document.getElementById("description").value = "";
+      categorySelect.value = "";
+
+      // Refresh products with current filter
+      const currentCategory = document.getElementById("categorySelect").value;
+      filterProductsByCategory(currentCategory);
+    })
+    .catch(err => console.error("Error adding product:", err));
 }
 
-
-//---vvv--- Funktioner för att ta bort produkter nedan ---vvv---
-function deleteProduct(productId, cardElement) {
+// --- Delete product ---
+function deleteProduct(productId) {
   if (!confirm("Are you sure you want to delete this product?")) return;
 
-  fetch(`/api/products/${productId}`, {
-    method: "DELETE"
-  })
-  .then(res => res.json())
-  .then(() => {
-    cardElement.remove(); // tar bort produkten INSTANT WOWIE
-  })
-  .catch(err => console.error("Delete failed:", err));
+  fetch(`/api/products/${productId}`, { method: "DELETE" })
+    .then(res => res.json())
+    .then(() => {
+      const currentCategory = document.getElementById("categorySelect").value;
+      filterProductsByCategory(currentCategory);
+    })
+    .catch(err => console.error("Delete failed:", err));
 }
+
+// --- Initial load ---
+filterProductsByCategory(""); // load all products initially

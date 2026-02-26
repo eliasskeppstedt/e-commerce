@@ -23,7 +23,7 @@ func NewMysqlProductRepository(db *sql.DB) *mysqlProductRepository {
 func (r *mysqlProductRepository) getByProductID(productID int) (Product, error) {
 	var p Product
 	err := r.db.QueryRow(`
-		SELECT product_id, product_name, stock, price, manufacturer, description, category_name 
+		SELECT product_id, product_name, stock, price, manufacturer, description, category_id 
 		FROM products WHERE product_id = ?`,
 		productID,
 	).Scan(
@@ -33,7 +33,7 @@ func (r *mysqlProductRepository) getByProductID(productID int) (Product, error) 
 		&p.Price,
 		&p.Manufacturer,
 		&p.Description,
-		&p.CategoryName,
+		&p.CategoryID,
 	)
 	if err != nil {
 		return Product{}, err
@@ -44,7 +44,7 @@ func (r *mysqlProductRepository) getByProductID(productID int) (Product, error) 
 // HÄMTAR ALLA PRODUKTER
 func (r *mysqlProductRepository) getAll() ([]Product, error) {
 	rows, err := r.db.Query(`
-		SELECT product_id, product_name, stock, price, manufacturer, description, category_name 
+		SELECT product_id, product_name, stock, price, manufacturer, description, category_id 
 		FROM products
 	`)
 	if err != nil {
@@ -62,7 +62,7 @@ func (r *mysqlProductRepository) getAll() ([]Product, error) {
 			&p.Price,
 			&p.Manufacturer,
 			&p.Description,
-			&p.CategoryName,
+			&p.CategoryID,
 		); err != nil {
 			return nil, err
 		}
@@ -75,14 +75,14 @@ func (r *mysqlProductRepository) getAll() ([]Product, error) {
 // lÄGG TILL EN NY PRODUKT
 func (r *mysqlProductRepository) registerProduct(p Product) error {
 	_, err := r.db.Exec(`
-		INSERT INTO products (product_name, stock, price, manufacturer, description, category_name)
+		INSERT INTO products (product_name, stock, price, manufacturer, description, category_id)
 		VALUES (?, ?, ?, ?, ?, ?)`,
 		p.ProductName,
 		p.Stock,
 		p.Price,
 		p.Manufacturer,
 		p.Description,
-		p.CategoryName,
+		p.CategoryID,
 	)
 	return err
 }

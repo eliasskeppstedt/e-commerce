@@ -24,12 +24,12 @@ func RegisterWebRouts(engine *gin.Engine) {
 		fmt.Println("productspage works")
 	})
 
-	/*engine.GET("/categories", func(ctx *gin.Context) {
+	engine.GET("/categories", func(ctx *gin.Context) {
 		// Return HTTP response
 		ctx.HTML(http.StatusOK, "categoriesPage.html", gin.H{})
 		fmt.Println("categoriespage works")
 	})
-	*/
+
 	engine.GET("/cart", func(ctx *gin.Context) {
 		// Return HTTP response
 		ctx.HTML(http.StatusOK, "cartPage.html", gin.H{})

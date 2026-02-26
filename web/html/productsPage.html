@@ -21,6 +21,29 @@
   </ul>
 </nav>
 
+<!-- Category Bar / Dropdown -->
+<div class="category-bar">
+  <label for="categorySelect">Filter by Category:</label>
+  <select id="categorySelect">
+    <option value="">All Categories</option>
+  </select>
+
+  <!-- Add new category input -->
+  <input id="newCategoryInput" type="text" placeholder="New category name" />
+
+  <!-- Buttons -->
+  <button id="addCategoryBtn">Add Category</button>
+  <button id="removeCategoryBtn">Remove Category</button>
+</div>
+
+  <!-- Product grid -->
+  <div class="product-grid" id="productGrid">
+    <!-- Products will be rendered here -->
+  </div>
+</div>
+
+
+
 <div class="container">
   <div class="product-grid" id="productGrid">
     <!-- Products will be rendered here -->
@@ -35,12 +58,15 @@
   <input id="manufacturer" placeholder="Manufacturer" />
   <input id="stock" type="number" placeholder="Stock" />
   <input id="price" type="number" step="0.01" placeholder="Price" />
-  <input id="category" placeholder="Category Name" />
+  <select id="categorySelectForAdd">
+     <option value="">Select a Category</option>
+  </select>
 
 
   <button onclick="addProduct()">Add Product</button>
 </div>
 
 <script src="/scripts/products.js"></script>
+<script src="/scripts/categories.js"></script>
 </body>
 </html>
