@@ -5,14 +5,12 @@ import (
 	"fmt"
 )
 
-// Interface
 type categoryRepository interface {
 	getAll() ([]Category, error)
 	createCategory(category Category) error
 	deleteCategory(id int) error
 }
 
-// MySQL implementation
 type mysqlCategoryRepository struct {
 	db *sql.DB
 }

@@ -1,11 +1,11 @@
 console.log("categories.js loaded successfully");
 
-// --- Load categories from backend and populate dropdowns ---
+// --- Laddar in kategorierna från backend ---
 function loadCategories() {
   fetch("/api/categories")
     .then(res => res.json())
     .then(categories => {
-      // --- Filter dropdown ---
+      // --- Dropdown filter ---
       const filterSelect = document.getElementById("categorySelect");
       filterSelect.innerHTML = '<option value="">All Categories</option>';
       categories.forEach(c => {
@@ -15,7 +15,7 @@ function loadCategories() {
         filterSelect.appendChild(option);
       });
 
-      // --- Add product dropdown ---
+      // --- Lägger till kategori till produkt menyn (där man väljer kategori) ---
       const addSelect = document.getElementById("categorySelectForAdd");
       addSelect.innerHTML = '<option value="">Select a Category</option>';
       categories.forEach(c => {
@@ -28,12 +28,12 @@ function loadCategories() {
     .catch(err => console.error("Failed to load categories:", err));
 }
 
-// --- Event: filter dropdown change ---
+// --- Dropdown meny uppdateras ---
 document.getElementById("categorySelect").addEventListener("change", (e) => {
   filterProductsByCategory(e.target.value);
 });
 
-// --- Event: add category ---
+// --- Lägger till kategori ---
 document.getElementById("addCategoryBtn").addEventListener("click", () => {
   const newCategory = document.getElementById("newCategoryInput").value.trim();
   if (!newCategory) return alert("Please enter a category name.");
@@ -51,7 +51,7 @@ document.getElementById("addCategoryBtn").addEventListener("click", () => {
     .catch(err => console.error("Failed to add category:", err));
 });
 
-// --- Event: remove category ---
+// --- Tar bort kategori ---
 document.getElementById("removeCategoryBtn").addEventListener("click", () => {
   const select = document.getElementById("categorySelect");
   const categoryId = select.value;

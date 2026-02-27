@@ -57,7 +57,7 @@ func (h *CategoryHandler) DeleteCategory(ctx *gin.Context) {
 	}
 
 	if err := h.service.deleteCategory(id); err != nil {
-		// Check for FK constraint
+		// Kollar om det är en foreign key (så man inte tar bort kategorier med produkter innut i)
 		if strings.Contains(err.Error(), "foreign key constraint") {
 			ctx.JSON(http.StatusConflict, gin.H{"error": "Cannot delete category with products"})
 			return

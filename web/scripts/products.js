@@ -1,6 +1,6 @@
 console.log("products.js loaded successfully");
 
-// --- Render a single product card ---
+// --- Renderar produkterna i frontenden ---
 function renderProduct(p) {
   const grid = document.getElementById("productGrid");
   const card = document.createElement("div");
@@ -26,7 +26,7 @@ function renderProduct(p) {
   grid.appendChild(card);
 }
 
-// --- Load and filter products ---
+// --- Laddar och filtrerar produkter med kategorier ---
 function filterProductsByCategory(categoryId) {
   fetch("/api/products")
     .then(res => res.json())
@@ -44,7 +44,7 @@ function filterProductsByCategory(categoryId) {
     .catch(err => console.error("Failed to load products:", err));
 }
 
-// --- Add new product ---
+// --- Lägger in produkter ---
 function addProduct() {
   const categorySelect = document.getElementById("categorySelectForAdd");
   const categoryId = parseInt(categorySelect.value || "0");
@@ -81,7 +81,7 @@ function addProduct() {
     .catch(err => console.error("Error adding product:", err));
 }
 
-// --- Delete product ---
+// --- Tar bort produkter ---
 function deleteProduct(productId) {
   if (!confirm("Are you sure you want to delete this product?")) return;
 
@@ -94,5 +94,5 @@ function deleteProduct(productId) {
     .catch(err => console.error("Delete failed:", err));
 }
 
-// --- Initial load ---
-filterProductsByCategory(""); // load all products initially
+// --- Laddar produkter ---
+filterProductsByCategory(""); 
