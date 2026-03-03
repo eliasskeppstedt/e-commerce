@@ -10,7 +10,7 @@ function loadCategories() {
       filterSelect.innerHTML = '<option value="">All Categories</option>';
       categories.forEach(c => {
         const option = document.createElement("option");
-        option.value = c.category_id;      // use numeric ID
+        option.value = c.category_id;      // Använder id
         option.textContent = c.category_name;
         filterSelect.appendChild(option);
       });
@@ -20,7 +20,7 @@ function loadCategories() {
       addSelect.innerHTML = '<option value="">Select a Category</option>';
       categories.forEach(c => {
         const option = document.createElement("option");
-        option.value = c.category_id;      // numeric ID
+        option.value = c.category_id;      // Använder id
         option.textContent = c.category_name;
         addSelect.appendChild(option);
       });
@@ -46,7 +46,7 @@ document.getElementById("addCategoryBtn").addEventListener("click", () => {
     .then(res => res.json())
     .then(() => {
       document.getElementById("newCategoryInput").value = "";
-      loadCategories(); // reload dropdowns
+      loadCategories(); // Refreshar dropdown
     })
     .catch(err => console.error("Failed to add category:", err));
 });
@@ -66,7 +66,7 @@ document.getElementById("removeCategoryBtn").addEventListener("click", () => {
         alert(data.error);
         return;
       }
-      // reload dropdowns and refresh products for current filter
+      // Refreshar dropdown meny samt produkter för rätt "filtrering"
       loadCategories();
       filterProductsByCategory(document.getElementById("categorySelect").value);
     })

@@ -40,9 +40,9 @@ function filterProductsByCategory(categoryId) {
     .then(res => res.json())
     .then(products => {
       const grid = document.getElementById("productGrid");
-      grid.innerHTML = ""; // Clear previous products
+      grid.innerHTML = ""; // Rensar bort tidigare produkter
 
-      // Parse categoryId to int
+      // Category id = int PARSE
       const filterId = parseInt(categoryId) || 0;
 
       products
@@ -74,7 +74,7 @@ function addProduct() {
   })
     .then(res => res.json())
     .then(() => {
-      // Clear form
+      // Rensar form
       document.getElementById("name").value = "";
       document.getElementById("manufacturer").value = "";
       document.getElementById("stock").value = "";
@@ -82,7 +82,7 @@ function addProduct() {
       document.getElementById("description").value = "";
       categorySelect.value = "";
 
-      // Refresh products with current filter
+      // Refreshar produkterna med rätt kategori
       const currentCategory = document.getElementById("categorySelect").value;
       filterProductsByCategory(currentCategory);
     })
@@ -140,7 +140,7 @@ function saveUpdate(productId, card) {
   })
     .then(res => res.json())
     .then(() => {
-      // Reload products using current filter
+      // Laddar om produkterna med rätt kategori
       const currentCategory =
         document.getElementById("categorySelect").value;
 
