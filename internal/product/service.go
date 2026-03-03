@@ -30,3 +30,7 @@ func (s *productServiceImp) registerProduct(product Product) error {
 func (s *productServiceImp) deleteProduct(id int) error {
 	return s.repo.deleteProduct(id)
 }
+
+func (s *productServiceImp) updateProduct(id int, stock int, price float64) error {
+	return s.repo.updateProduct(id, stock, price)
+}

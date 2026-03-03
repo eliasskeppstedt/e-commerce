@@ -33,7 +33,7 @@ document.getElementById("categorySelect").addEventListener("change", (e) => {
   filterProductsByCategory(e.target.value);
 });
 
-// --- Lägger till kategori ---
+// --- Lägger till kategori --- Måste fixa så bara admin kan göra detta
 document.getElementById("addCategoryBtn").addEventListener("click", () => {
   const newCategory = document.getElementById("newCategoryInput").value.trim();
   if (!newCategory) return alert("Please enter a category name.");
@@ -51,7 +51,7 @@ document.getElementById("addCategoryBtn").addEventListener("click", () => {
     .catch(err => console.error("Failed to add category:", err));
 });
 
-// --- Tar bort kategori ---
+// --- Tar bort kategori --- måste fixa så bara admin kan göra detta
 document.getElementById("removeCategoryBtn").addEventListener("click", () => {
   const select = document.getElementById("categorySelect");
   const categoryId = select.value;

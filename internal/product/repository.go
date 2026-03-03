@@ -8,6 +8,7 @@ type productRepository interface {
 	getAll() ([]Product, error)
 	registerProduct(product Product) error
 	deleteProduct(id int) error
+	updateProduct(id int, stock int, price float64) error
 }
 
 // SQL GREJS
@@ -90,5 +91,16 @@ func (r *mysqlProductRepository) registerProduct(p Product) error {
 // TA BORT PRODUKT
 func (r *mysqlProductRepository) deleteProduct(id int) error {
 	_, err := r.db.Exec("DELETE FROM products WHERE product_id = ?", id)
+	return err
+}
+
+// uppdatera produkters pris/stock
+func (r *mysqlProductRepository) updateProduct(id int, stock int, price float64) error {
+	_, err := r.db.Exec(`
+		UPDATE products 
+		SET stock = ?, price = ?
+		WHERE product_id = ?`,
+		stock, price, id,
+	)
 	return err
 }

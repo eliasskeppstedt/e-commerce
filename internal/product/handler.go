@@ -63,3 +63,31 @@ func (h *ProductHandler) DeleteProduct(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Product deleted"})
 }
+
+func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	var updateData struct {
+		Stock int     `json:"stock"`
+		Price float64 `json:"price"`
+	}
+
+	if err := ctx.ShouldBindJSON(&updateData); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Something went wrong"})
+		return
+	}
+
+	err = h.service.updateProduct(id, updateData.Stock, updateData.Price)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Update failed"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Product updated"})
+}

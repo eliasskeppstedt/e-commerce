@@ -12,19 +12,27 @@ function renderProduct(p) {
       <h3>${p.product_name}</h3>
       <p>${p.description}</p>
       <p>Manufacturer: ${p.manufacturer}</p>
-      <p>Stock: ${p.stock}</p>
+      <p>
+        Stock: <span class="stock">${p.stock}</span>
+      </p>
+      <p>
+        Price: <span class="price">${p.price}</span> SEK
+      </p>
       <p>Category: ${p.category_name}</p>
-      <strong>${p.price} SEK</strong>
-      <br />
+      <button class="edit-btn">Edit</button>
       <button class="delete-btn">Delete</button>
     </div>
   `;
 
-  card.querySelector(".delete-btn").onclick = () =>
-    deleteProduct(p.product_id);
+  card.querySelector(".delete-btn").onclick =
+    () => deleteProduct(p.product_id);
+
+  card.querySelector(".edit-btn").onclick =
+    () => enableEditMode(p, card);
 
   grid.appendChild(card);
 }
+
 
 // --- Laddar och filtrerar produkter med kategorier ---
 function filterProductsByCategory(categoryId) {
@@ -44,7 +52,7 @@ function filterProductsByCategory(categoryId) {
     .catch(err => console.error("Failed to load products:", err));
 }
 
-// --- Lägger in produkter ---
+// --- Lägger in produkter --- måste fixa så bara admin kan göra detta
 function addProduct() {
   const categorySelect = document.getElementById("categorySelectForAdd");
   const categoryId = parseInt(categorySelect.value || "0");
@@ -81,7 +89,7 @@ function addProduct() {
     .catch(err => console.error("Error adding product:", err));
 }
 
-// --- Tar bort produkter ---
+// --- Tar bort produkter --- måste fixa så bara admin kan ändra detta
 function deleteProduct(productId) {
   if (!confirm("Are you sure you want to delete this product?")) return;
 
@@ -96,3 +104,47 @@ function deleteProduct(productId) {
 
 // --- Laddar produkter ---
 filterProductsByCategory(""); 
+
+// måste fixa så bara admin kan använda detta
+function enableEditMode(product, card) {
+  const stockSpan = card.querySelector(".stock");
+  const priceSpan = card.querySelector(".price");
+
+  stockSpan.innerHTML =
+    `<input type="number" class="edit-stock" value="${product.stock}">`;
+
+  priceSpan.innerHTML =
+    `<input type="number" step="0.01" class="edit-price" value="${product.price}">`;
+
+  const editBtn = card.querySelector(".edit-btn");
+  editBtn.textContent = "Save";
+
+  editBtn.onclick = () =>
+    saveUpdate(product.product_id, card);
+}
+//måste fixa så bara admin kan använda detta
+function saveUpdate(productId, card) {
+  const newStock =
+    parseInt(card.querySelector(".edit-stock").value);
+
+  const newPrice =
+    parseFloat(card.querySelector(".edit-price").value);
+
+  fetch(`/api/products/${productId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      stock: newStock,
+      price: newPrice
+    })
+  })
+    .then(res => res.json())
+    .then(() => {
+      // Reload products using current filter
+      const currentCategory =
+        document.getElementById("categorySelect").value;
+
+      filterProductsByCategory(currentCategory);
+    })
+    .catch(err => console.error("Update failed:", err));
+}

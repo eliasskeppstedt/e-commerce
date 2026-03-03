@@ -65,6 +65,7 @@ func RegisterApiRouts(
 	engine.GET("/api/products", productHandler.GetProducts)
 	engine.POST("/api/products", productHandler.CreateProduct)
 	engine.DELETE("/api/products/:id", productHandler.DeleteProduct)
+	engine.PUT("/api/products/:id", productHandler.UpdateProduct)
 
 	// handlers för kategorier
 	engine.GET("/api/categories", categoryHandler.GetCategories)

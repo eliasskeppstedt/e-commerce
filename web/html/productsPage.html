@@ -7,7 +7,7 @@
 <body>
 
 <div class="title">
-  <img src="../icons/logo.png" class="logo">
+  <img src="/icons/logo.png" class="logo">
   PorschDucky
 </div>
 
@@ -21,30 +21,24 @@
   </ul>
 </nav>
 
-<!-- Kategori dropdown -->
+<!-- Category filter -->
 <div class="category-bar">
   <label for="categorySelect">Filter by Category:</label>
-  <select id="categorySelect">
+  <select id="categorySelect" onchange="filterProductsByCategory(this.value)">
     <option value="">All Categories</option>
   </select>
 
-  <!-- Lägg in ny kategori med text yippie -->
   <input id="newCategoryInput" type="text" placeholder="New category name" />
-
   <button id="addCategoryBtn">Add Category</button>
   <button id="removeCategoryBtn">Remove Category</button>
 </div>
-  <div class="product-grid" id="productGrid">
-  </div>
-</div>
 
-
-
+<!-- Products render here -->
 <div class="container">
-  <div class="product-grid" id="productGrid">
-  </div>
+  <div class="product-grid" id="productGrid"></div>
 </div>
 
+<!-- Add product -->
 <div class="add-product">
   <h2>Add Product</h2>
 
@@ -53,10 +47,10 @@
   <input id="manufacturer" placeholder="Manufacturer" />
   <input id="stock" type="number" placeholder="Stock" />
   <input id="price" type="number" step="0.01" placeholder="Price" />
-  <select id="categorySelectForAdd">
-     <option value="">Select a Category</option>
-  </select>
 
+  <select id="categorySelectForAdd">
+    <option value="">Select a Category</option>
+  </select>
 
   <button onclick="addProduct()">Add Product</button>
 </div>
