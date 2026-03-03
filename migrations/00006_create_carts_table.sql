@@ -3,6 +3,7 @@
 CREATE TABLE `carts` (
   `cart_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
+  `status` enum('active', 'ordered') NOT NULL DEFAULT 'active',
   PRIMARY KEY (`cart_id`),
   FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 );

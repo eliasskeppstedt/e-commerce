@@ -16,7 +16,7 @@ func NewProductServiceImp(r ProductRepository) *productServiceImp {
 }
 
 func (s *productServiceImp) getByProductID(id int) (Product, error) {
-	return s.repo.getByProductID(id)
+	return s.repo.GetByProductID(id)
 }
 
 func (s *productServiceImp) getAll() ([]Product, error) {

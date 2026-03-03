@@ -3,6 +3,7 @@ package api
 import (
 	"ecommerce/duckyarmy/internal/cart"
 	"ecommerce/duckyarmy/internal/customer"
+	"ecommerce/duckyarmy/internal/order"
 	"ecommerce/duckyarmy/internal/product"
 	"fmt"
 	"net/http"
@@ -47,7 +48,7 @@ func RegisterApiRouts(
 	userHandler *customer.UserHandler,
 	productHandler *product.ProductHandler,
 	cartHandler *cart.CartHandler,
-
+	orderHandler *order.OrderHandler,
 ) {
 
 	// registrera handlers för kund
@@ -58,6 +59,6 @@ func RegisterApiRouts(
 	engine.GET("/api/products", productHandler.GetProducts)
 	engine.POST("/api/products", productHandler.CreateProduct)
 
-	//engine.POST("/api/carts/register", )
-	//engine.POST("/api/to/cart_items/product_number", cartHandler.CartItemAdd)
+	engine.POST("/api/cart/items", cartHandler.AddItem)
+	engine.POST("/api/cart/checkout", orderHandler.CheckOut)
 }

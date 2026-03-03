@@ -4,7 +4,7 @@ import "database/sql"
 
 // Produkt interface
 type ProductRepository interface {
-	getByProductID(id int) (Product, error)
+	GetByProductID(id int) (Product, error)
 	getAll() ([]Product, error)
 	registerProduct(p Product) error
 	deleteProduct(id int) error
@@ -21,7 +21,7 @@ func NewMysqlProductRepository(db *sql.DB) *mysqlProductRepository {
 }
 
 // HÄMTAR PRODUKT ID
-func (r *mysqlProductRepository) getByProductID(id int) (Product, error) {
+func (r *mysqlProductRepository) GetByProductID(id int) (Product, error) {
 	var p Product
 	err := r.db.QueryRow(`
 		SELECT product_id, product_name, stock, price, manufacturer, description, category_name 

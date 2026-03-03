@@ -5,21 +5,13 @@ import (
 )
 
 type CartHandler struct {
-	service *CartService1
+	service *cartService1
 }
 
-func NewCartHandler(s *CartService1) *CartHandler {
+func NewCartHandler(s *cartService1) *CartHandler {
 	return &CartHandler{s}
 }
 
-func (h *CartHandler) CartItemAdd(ctx *gin.Context) {
-}
-
-func (h *CartHandler) CartItemBulkAdd(ctx *gin.Context) {
-}
-
-func (h *CartHandler) CartItemRemove(ctx *gin.Context) {
-}
-
-func (h *CartHandler) CartItemBulkRemove(ctx *gin.Context) {
+func (h *CartHandler) AddItem(ctx *gin.Context) {
+	// fixa med auth
 }
