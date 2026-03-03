@@ -9,9 +9,7 @@ CREATE TABLE `products` (
   `description`varchar(255) NOT NULL,
   `category_id` int NOT NULL,
   PRIMARY KEY (`product_id`),
-  FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
-  ON DELETE RESTRICT
-  ON UPDATE CASCADE
+  FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`) 
 );
 -- +goose StatementEnd
 

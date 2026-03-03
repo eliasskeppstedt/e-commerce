@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE `productImages` (
+CREATE TABLE `product_images` (
   `product_image_id` int NOT NULL AUTO_INCREMENT,
   `product_id` int NOT NULL,
   `product_image_uri` float NOT NULL,
@@ -11,5 +11,5 @@ CREATE TABLE `productImages` (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS productImages;
+DROP TABLE IF EXISTS product_images;
 -- +goose StatementEnd

@@ -10,7 +10,7 @@ use ecom
 ## From mysql:
 ```sql
 SET FOREIGN_KEY_CHECKS = 0;
-DROP TABLE IF EXISTS cartItems, carts, orderItems, orders, productImages, products, categories, users;
+DROP TABLE IF EXISTS cart_items, carts, order_items, orders, product_images, products, categories, users;
 SET FOREIGN_KEY_CHECKS = 1;
 ```
 ## From root dir:
