@@ -1,0 +1,17 @@
+How to use middleware in routes:
+
+	engine.GET("/", auth.Middleware(), func(ctx *gin.Context) {
+		// Return HTTP response
+		claims_value, exists := ctx.Get("auth_token")
+		if !exists {
+				ctx.HTML(http.StatusOK, "homePage.html", gin.H{})
+				fmt.Println("Hompage works")
+				return
+		}
+		claims := claims_value.(*auth.Claims)
+		ctx.HTML(200, "homePage.html", gin.H{
+			"UserID": claims.UserID,
+			"IsAdmin": claims.IsAdmin,
+		})
+
+	})
