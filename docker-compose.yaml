@@ -1,15 +1,24 @@
 services:
-  db:
+  mysql:
     image: mysql:8.0.45
-    container_name: ecommerce_db
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DBPASS}
       MYSQL_DATABASE: ${DBNAME}
-    ports:
-      - "3307:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - db-data:/var/lib/mysql
+
+  gin:
+    build: .
+    depends_on:
+      - mysql
+    environment:
+      DBUSER: ${DBUSER}
+      DBPASS: ${DBPASS}
+      DBURL: mysql:3306
+      DBNAME: ${DBNAME}
+    ports:
+      - "8080:8080"
 
 volumes:
-  db_data:
+  db-data:
