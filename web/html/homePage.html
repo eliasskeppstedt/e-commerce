@@ -17,16 +17,23 @@
   <ul>
     <li><a href="" class ="active"  >Home</a></li>
     <li><a href="products">Products</a></li>
-    <li><a href="cart">Cart</a></li>
-    <li><a href="login">Login</a></li>
-    <li><a href="register">Register</a></li>
+    {{if .UserID}}
+        <li><a href="cart">Cart</a></li>
+        <li><a href="profile"></a></li>
+
+    {{else if .IsAdmin}}
+        <li><a href="manageProducts"></a></li>
+        <li><a href="profile"></a></li>
+    {{else}}
+        <li><a href="login">Login</a></li>
+        <li><a href="register">Register</a></li>
+    {{end}}
   </ul>
 </nav>
 </body>
 
 <body>
-  <div class =" fireSale"><div class="rolltext"> BEST SELLER ELIAS CASINO BEST PRODUCT 
-    SUPER BEST NO BETTER YOU CANT FIND BETTER NO WAY! ELIAS RICH BECAUSE YOU</div>
+  <div class =" fireSale"><div class="rolltext"> BEST SELLER ALREADY SOLD OUT :/</div>
     </div>
     <div class="container">
         <div class="product-grid">
