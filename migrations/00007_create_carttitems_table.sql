@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE `cartItems` (
+CREATE TABLE `cart_items` (
   `cart_item_id` int NOT NULL AUTO_INCREMENT,
   `cart_id` int NOT NULL,
   `product_id` int NOT NULL,
@@ -13,5 +13,5 @@ CREATE TABLE `cartItems` (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS cartItems;
+DROP TABLE IF EXISTS cart_items;
 -- +goose StatementEnd

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"ecommerce/duckyarmy/internal/category"
 	"ecommerce/duckyarmy/internal/customer"
 	"ecommerce/duckyarmy/internal/product"
 	"fmt"
@@ -21,6 +22,12 @@ func RegisterWebRouts(engine *gin.Engine) {
 		// Return HTTP response
 		ctx.HTML(http.StatusOK, "productsPage.html", gin.H{})
 		fmt.Println("productspage works")
+	})
+
+	engine.GET("/categories", func(ctx *gin.Context) {
+		// Return HTTP response
+		ctx.HTML(http.StatusOK, "categoriesPage.html", gin.H{})
+		fmt.Println("categoriespage works")
 	})
 
 	engine.GET("/cart", func(ctx *gin.Context) {
@@ -45,6 +52,7 @@ func RegisterApiRouts(
 	engine *gin.Engine,
 	userHandler *customer.UserHandler,
 	productHandler *product.ProductHandler,
+	categoryHandler *category.CategoryHandler,
 
 ) {
 
@@ -53,6 +61,15 @@ func RegisterApiRouts(
 	engine.POST("/api/users/register", userHandler.CreateAccount)
 	engine.GET("/api/users/:user_id", userHandler.GetUserByUsername)
 
+	// handlers för produkter
 	engine.GET("/api/products", productHandler.GetProducts)
 	engine.POST("/api/products", productHandler.CreateProduct)
+	engine.DELETE("/api/products/:id", productHandler.DeleteProduct)
+	engine.PUT("/api/products/:id", productHandler.UpdateProduct)
+
+	// handlers för kategorier
+	engine.GET("/api/categories", categoryHandler.GetCategories)
+	engine.POST("/api/categories", categoryHandler.CreateCategory)
+	engine.DELETE("/api/categories/:id", categoryHandler.DeleteCategory)
+
 }

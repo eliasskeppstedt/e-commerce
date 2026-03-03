@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TABLE `orderItems` (
+CREATE TABLE `order_items` (
   `order_item_id` int NOT NULL AUTO_INCREMENT,
   `order_id` int NOT NULL,
   `product_id` int NOT NULL,
@@ -14,5 +14,5 @@ CREATE TABLE `orderItems` (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS orderItems;
+DROP TABLE IF EXISTS order_items;
 -- +goose StatementEnd
