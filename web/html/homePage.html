@@ -17,13 +17,10 @@
   <ul>
     <li><a href="" class ="active"  >Home</a></li>
     <li><a href="products">Products</a></li>
-    {{if .UserID}}
+    {{if .UserID }}
         <li><a href="cart">Cart</a></li>
-        <li><a href="profile"></a></li>
-
-    {{else if .IsAdmin}}
-        <li><a href="manageProducts"></a></li>
-        <li><a href="profile"></a></li>
+        <li><a href="profile">Profile</a></li>
+        <li><a href="/api/users/logout">Logout</a></li>
     {{else}}
         <li><a href="login">Login</a></li>
         <li><a href="register">Register</a></li>
