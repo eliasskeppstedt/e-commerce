@@ -7,9 +7,9 @@ CREATE TABLE `products` (
   `price` DECIMAL(10,2) NOT NULL,
   `manufacturer` varchar(100) NOT NULL,
   `description`varchar(255) NOT NULL,
-  `category_name` varchar(25),
+  `category_id` int NOT NULL,
   PRIMARY KEY (`product_id`),
-  FOREIGN KEY (`category_name`) REFERENCES `categories` (`category_name`) 
+  FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`) 
 );
 -- +goose StatementEnd
 
