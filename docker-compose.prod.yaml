@@ -15,22 +15,18 @@ services:
       - db-data:/var/lib/mysql
 
   gin:
-    build:
-      context: .
-      target: dev
+    image: eliassk/e-commerce:latest
     # starta mysql först (behöver ej vara redo dock)
     depends_on:
       - mysql
-    volumes:
-      - .:/app
-    # datorn lyssnar på port 8080, skickar traffik till containern på samma port
-    ports:
-      - "8080:8080"
     environment:
       DBUSER: ${DBUSER}
       DBPASS: ${DBPASS}
       DBURL: mysql:3306 # inne i containern är hostname mysql!
       DBNAME: ${DBNAME}
+    # datorn lyssnar på port 8080, skickar traffik till containern på samma port
+    ports:
+      - "80:8080"
 
 volumes:
   db-data:

@@ -3,8 +3,8 @@
 CREATE TABLE `products` (
   `product_id` int NOT NULL AUTO_INCREMENT,
   `product_name` varchar(25) NOT NULL UNIQUE KEY,
-  `stock`int NOT NULL,
-  `price` float NOT NULL,
+  `stock`int NOT NULL DEFAULT 0,
+  `price` DECIMAL(10,2) NOT NULL,
   `manufacturer` varchar(100) NOT NULL,
   `description`varchar(255) NOT NULL,
   `category_id` int NOT NULL,

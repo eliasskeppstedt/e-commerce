@@ -3,11 +3,12 @@ package product
 import "database/sql"
 
 // Produkt interface
-type productRepository interface {
-	getByProductID(productID int) (Product, error)
+type ProductRepository interface {
+	GetByProductID(id int) (Product, error)
 	getAll() ([]Product, error)
 	registerProduct(product Product) error
 	deleteProduct(id int) error
+	GetProductStock(id int) (int, error)
 	updateProduct(id int, stock int, price float64) error
 }
 
@@ -21,12 +22,12 @@ func NewMysqlProductRepository(db *sql.DB) *mysqlProductRepository {
 }
 
 // HÄMTAR PRODUKT ID
-func (r *mysqlProductRepository) getByProductID(productID int) (Product, error) {
+func (r *mysqlProductRepository) GetByProductID(id int) (Product, error) {
 	var p Product
 	err := r.db.QueryRow(`
 		SELECT product_id, product_name, stock, price, manufacturer, description, category_id 
 		FROM products WHERE product_id = ?`,
-		productID,
+		id,
 	).Scan(
 		&p.ProductID,
 		&p.ProductName,
@@ -94,6 +95,15 @@ func (r *mysqlProductRepository) deleteProduct(id int) error {
 	return err
 }
 
+func (r *mysqlProductRepository) GetProductStock(id int) (int, error) {
+	row, _ := r.db.Query("SELECT stock FROM products WHERE product_id = ?", id)
+
+	var _id int
+	if err := row.Scan(&_id); err != nil {
+		return 0, err
+	}
+
+	return _id, nil
 // uppdatera produkters pris/stock
 func (r *mysqlProductRepository) updateProduct(id int, stock int, price float64) error {
 	_, err := r.db.Exec(`

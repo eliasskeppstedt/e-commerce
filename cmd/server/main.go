@@ -3,22 +3,25 @@ package main
 import (
 	"database/sql"
 	"ecommerce/duckyarmy/api"
+	"ecommerce/duckyarmy/internal/cart"
 	"ecommerce/duckyarmy/internal/category"
 	"ecommerce/duckyarmy/internal/customer"
+	"ecommerce/duckyarmy/internal/order"
 	"ecommerce/duckyarmy/internal/product"
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 )
 
 func main() {
 
 	// Create Gin router
 	engine := gin.Default()
+	engine.SetTrustedProxies(nil)
 
 	// Initialize database
 	db := tmpDbConfig()
@@ -33,6 +36,13 @@ func main() {
 	productService := product.NewProductServiceImp(productRepo)
 	productHandler := product.NewProductHandler(productService)
 
+	cartRepo := cart.NewMysqlCartRepository(db)
+	cartService := cart.NewCartService1(productRepo, cartRepo)
+	cartHandler := cart.NewCartHandler(cartService)
+
+	orderRepo := order.NewMysqlOrderRepository(db)
+	orderService := order.NewOrderService1(orderRepo, cartRepo, productRepo)
+	orderHandler := order.NewOrderHandler(orderService)
 	// CATEGORY SETUP
 	categoryRepo := category.NewMysqlCategoryRepository(db)
 	categoryService := category.NewCategoryServiceImp(categoryRepo)
@@ -46,7 +56,7 @@ func main() {
 
 	// Register routes
 	api.RegisterWebRouts(engine)
-	api.RegisterApiRouts(engine, userHandler, productHandler, categoryHandler)
+	api.RegisterApiRouts(engine, userHandler, productHandler, cartHandler, orderHandler, categoryHandler)
 
 	// Start server
 	if err := engine.Run(":8080"); err != nil {
@@ -56,10 +66,7 @@ func main() {
 
 func tmpDbConfig() *sql.DB {
 
-	// Load .env file
-	if err := godotenv.Load(".env"); err != nil {
-		log.Fatal("Error loading .env file:", err)
-	}
+	// environment-variabler laddas in via docker-compose
 
 	// MySQL config
 	cfg := mysql.NewConfig()
@@ -70,18 +77,24 @@ func tmpDbConfig() *sql.DB {
 	cfg.DBName = os.Getenv("DBNAME")
 	cfg.ParseTime = true
 
-	// Open connection
-	db, err := sql.Open("mysql", cfg.FormatDSN())
-	if err != nil {
-		log.Fatal("Error opening database:", err)
+	// Open connection, säkerställ att dbn hinner starta
+	for i := 0; i < 10; i++ {
+		db, err := sql.Open("mysql", cfg.FormatDSN())
+		if err != nil {
+			log.Println("Error opening database:", err)
+			time.Sleep(2 * time.Second)
+			continue
+		}
+
+		if err = db.Ping(); err == nil {
+			fmt.Println("Connected to database")
+			return db
+		}
+
+		log.Println("Waiting for database...")
+		time.Sleep(2 * time.Second)
 	}
 
-	// Test connection
-	if err := db.Ping(); err != nil {
-		log.Fatal("Error connecting to database:", err)
-	}
-
-	fmt.Println("\n-- Connected to database successfully --")
-
-	return db
+	log.Fatal("Could not connect to database after retries")
+	return nil
 }

@@ -8,15 +8,15 @@ type productService interface {
 }
 
 type productServiceImp struct {
-	repo productRepository
+	repo ProductRepository
 }
 
-func NewProductServiceImp(r productRepository) *productServiceImp {
+func NewProductServiceImp(r ProductRepository) *productServiceImp {
 	return &productServiceImp{repo: r}
 }
 
 func (s *productServiceImp) getByProductID(id int) (Product, error) {
-	return s.repo.getByProductID(id)
+	return s.repo.GetByProductID(id)
 }
 
 func (s *productServiceImp) getAll() ([]Product, error) {
