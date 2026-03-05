@@ -8,4 +8,5 @@ type Product struct {
 	Manufacturer string  `json:"manufacturer"`
 	Description  string  `json:"description"`
 	CategoryID   int     `json:"category_id"`
+	CategoryName string  `json:"category_name"`
 }

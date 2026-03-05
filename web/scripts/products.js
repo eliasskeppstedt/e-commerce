@@ -1,6 +1,10 @@
 console.log("products.js loaded successfully");
 
-// --- Renderar produkterna i frontenden ---
+// --- Admin flag from hidden HTML ---
+const adminElement = document.getElementById("adminFlag");
+const isAdmin = adminElement && adminElement.getAttribute("data-is-admin") === "true";
+
+// --- Render a single product (no edit/delete buttons) ---
 function renderProduct(p) {
   const grid = document.getElementById("productGrid");
   const card = document.createElement("div");
@@ -12,37 +16,23 @@ function renderProduct(p) {
       <h3>${p.product_name}</h3>
       <p>${p.description}</p>
       <p>Manufacturer: ${p.manufacturer}</p>
-      <p>
-        Stock: <span class="stock">${p.stock}</span>
-      </p>
-      <p>
-        Price: <span class="price">${p.price}</span> SEK
-      </p>
+      <p>Stock: <span class="stock">${p.stock}</span></p>
+      <p>Price: <span class="price">${p.price}</span> SEK</p>
       <p>Category: ${p.category_name}</p>
-      <button class="edit-btn">Edit</button>
-      <button class="delete-btn">Delete</button>
     </div>
   `;
-
-  card.querySelector(".delete-btn").onclick =
-    () => deleteProduct(p.product_id);
-
-  card.querySelector(".edit-btn").onclick =
-    () => enableEditMode(p, card);
 
   grid.appendChild(card);
 }
 
-
-// --- Laddar och filtrerar produkter med kategorier ---
+// --- Filter products by category ---
 function filterProductsByCategory(categoryId) {
   fetch("/api/products")
     .then(res => res.json())
     .then(products => {
       const grid = document.getElementById("productGrid");
-      grid.innerHTML = ""; // Rensar bort tidigare produkter
+      grid.innerHTML = ""; // Clear previous
 
-      // Category id = int PARSE
       const filterId = parseInt(categoryId) || 0;
 
       products
@@ -52,8 +42,10 @@ function filterProductsByCategory(categoryId) {
     .catch(err => console.error("Failed to load products:", err));
 }
 
-// --- Lägger in produkter --- måste fixa så bara admin kan göra detta
+// --- Add a new product (admin only) ---
 function addProduct() {
+  if (!isAdmin) return alert("Only admins can add products!");
+
   const categorySelect = document.getElementById("categorySelectForAdd");
   const categoryId = parseInt(categorySelect.value || "0");
   if (!categoryId) return alert("Please select a category!");
@@ -74,7 +66,7 @@ function addProduct() {
   })
     .then(res => res.json())
     .then(() => {
-      // Rensar form
+      // Clear form
       document.getElementById("name").value = "";
       document.getElementById("manufacturer").value = "";
       document.getElementById("stock").value = "";
@@ -82,69 +74,14 @@ function addProduct() {
       document.getElementById("description").value = "";
       categorySelect.value = "";
 
-      // Refreshar produkterna med rätt kategori
+      // Refresh products
       const currentCategory = document.getElementById("categorySelect").value;
       filterProductsByCategory(currentCategory);
     })
     .catch(err => console.error("Error adding product:", err));
 }
 
-// --- Tar bort produkter --- måste fixa så bara admin kan ändra detta
-function deleteProduct(productId) {
-  if (!confirm("Are you sure you want to delete this product?")) return;
-
-  fetch(`/api/products/${productId}`, { method: "DELETE" })
-    .then(res => res.json())
-    .then(() => {
-      const currentCategory = document.getElementById("categorySelect").value;
-      filterProductsByCategory(currentCategory);
-    })
-    .catch(err => console.error("Delete failed:", err));
-}
-
-// --- Laddar produkter ---
-filterProductsByCategory(""); 
-
-// måste fixa så bara admin kan använda detta
-function enableEditMode(product, card) {
-  const stockSpan = card.querySelector(".stock");
-  const priceSpan = card.querySelector(".price");
-
-  stockSpan.innerHTML =
-    `<input type="number" class="edit-stock" value="${product.stock}">`;
-
-  priceSpan.innerHTML =
-    `<input type="number" step="0.01" class="edit-price" value="${product.price}">`;
-
-  const editBtn = card.querySelector(".edit-btn");
-  editBtn.textContent = "Save";
-
-  editBtn.onclick = () =>
-    saveUpdate(product.product_id, card);
-}
-//måste fixa så bara admin kan använda detta
-function saveUpdate(productId, card) {
-  const newStock =
-    parseInt(card.querySelector(".edit-stock").value);
-
-  const newPrice =
-    parseFloat(card.querySelector(".edit-price").value);
-
-  fetch(`/api/products/${productId}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      stock: newStock,
-      price: newPrice
-    })
-  })
-    .then(res => res.json())
-    .then(() => {
-      // Laddar om produkterna med rätt kategori
-      const currentCategory =
-        document.getElementById("categorySelect").value;
-
-      filterProductsByCategory(currentCategory);
-    })
-    .catch(err => console.error("Update failed:", err));
-}
+// --- Initial load ---
+document.addEventListener("DOMContentLoaded", () => {
+  filterProductsByCategory("");
+});
