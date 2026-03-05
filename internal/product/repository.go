@@ -46,8 +46,10 @@ func (r *mysqlProductRepository) GetByProductID(id int) (Product, error) {
 // HÄMTAR ALLA PRODUKTER
 func (r *mysqlProductRepository) getAll() ([]Product, error) {
 	rows, err := r.db.Query(`
-		SELECT product_id, product_name, stock, price, manufacturer, description, category_id 
-		FROM products
+		SELECT p.product_id, p.product_name, p.stock, p.price, p.manufacturer, p.description, 
+		       p.category_id, c.category_name
+		FROM products p
+		JOIN categories c ON p.category_id = c.category_id
 	`)
 	if err != nil {
 		return nil, err
@@ -65,6 +67,7 @@ func (r *mysqlProductRepository) getAll() ([]Product, error) {
 			&p.Manufacturer,
 			&p.Description,
 			&p.CategoryID,
+			&p.CategoryName,
 		); err != nil {
 			return nil, err
 		}
@@ -96,14 +99,12 @@ func (r *mysqlProductRepository) deleteProduct(id int) error {
 }
 
 func (r *mysqlProductRepository) GetProductStock(id int) (int, error) {
-	row, _ := r.db.Query("SELECT stock FROM products WHERE product_id = ?", id)
-
-	var _id int
-	if err := row.Scan(&_id); err != nil {
+	var stock int
+	err := r.db.QueryRow("SELECT stock FROM products WHERE product_id = ?", id).Scan(&stock)
+	if err != nil {
 		return 0, err
 	}
-
-	return _id, nil
+	return stock, nil
 }
 
 // uppdatera produkters pris/stock

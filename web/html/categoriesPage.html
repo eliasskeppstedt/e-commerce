@@ -1,15 +1,26 @@
-<!-- Kategori drop down menyn -->
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+
+<h1>Categories</h1>
+
 <div class="category-bar">
   <label for="categorySelect">Filter by Category:</label>
   <select id="categorySelect">
     <option value="">All Categories</option>
-    <!-- Settings laddas via JS -->
   </select>
 
-  <!-- För admin om det behövs idk -->
-  <button id="addCategoryBtn">Add Category</button>
-  <button id="removeCategoryBtn">Remove Category</button>
+  {{if .IsAdmin}}
+    <input id="newCategoryInput" type="text" placeholder="New category name" />
+    <button id="addCategoryBtn">Add Category</button>
+    <button id="removeCategoryBtn">Remove Category</button>
+  {{end}}
 </div>
 
 <script src="/scripts/categories.js"></script>
 <script src="/scripts/products.js"></script>
+</body>
+</html>
