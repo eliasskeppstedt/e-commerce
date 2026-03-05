@@ -15,6 +15,15 @@ type userService interface {
 		phone_number string) error
 	userLogin(loginInput, password string) (int, bool, error)
 	getUserByID(userID int) (*user, error)
+
+	updateUserInfo(
+		email,
+		first_name,
+		last_name,
+		address,
+		zip_code,
+		phone_number string,
+		userID int) (err error)
 }
 
 // uhm better name maybe 😅
@@ -26,7 +35,8 @@ func NewUserService1(r userRepository) *userService1 {
 	return &userService1{repo: r}
 }
 
-func (s *userService1) registerUser(username,
+func (s *userService1) registerUser(
+	username,
 	password,
 	email,
 	first_name,
@@ -35,7 +45,8 @@ func (s *userService1) registerUser(username,
 	zip_code,
 	phone_number string) error {
 
-	return s.repo.registerUser(username,
+	return s.repo.registerUser(
+		username,
 		password,
 		email,
 		first_name,
@@ -57,4 +68,15 @@ func (s *userService1) userLogin(loginInput, password string) (int, bool, error)
 
 func (s *userService1) getUserByID(userID int) (*user, error) {
 	return s.repo.getUserByID(userID)
+}
+
+func (s *userService1) updateUserInfo(
+	email,
+	first_name,
+	last_name,
+	address,
+	zip_code,
+	phone_number string,
+	userID int) (err error) {
+	return s.repo.updateUserInfo(email, first_name, last_name, address, zip_code, phone_number, userID)
 }
