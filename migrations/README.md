@@ -1,6 +1,6 @@
 # Connect to mysql server in docker-compose
 ```shell
-docker exec -it ecommerce_db bash
+docker exec -it e-commerce-mysql-1 bash
 mysql -u root -p
 # pwd 😘
 use ecom
