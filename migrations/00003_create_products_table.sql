@@ -8,10 +8,10 @@ CREATE TABLE `products` (
   `manufacturer` varchar(100) NOT NULL,
   `description`varchar(255) NOT NULL,
   `category_id` int NOT NULL,
-  `category_name` varchar(25) NOT NULL UNIQUE KEY,
   PRIMARY KEY (`product_id`),
-  FOREIGN KEY (`category_name`) REFERENCES `categories` (`category_name`)
-  FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`) 
+  FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
+  ON DELETE RESTRICT
+  ON UPDATE CASCADE 
 );
 -- +goose StatementEnd
 
