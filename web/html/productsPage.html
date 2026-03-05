@@ -14,10 +14,15 @@
 <nav class="menu-bar">
   <ul>
     <li><a href="/">Home</a></li>
-    <li><a class="active">Products</a></li>
-    <li><a href="cart">Cart</a></li>
-    <li><a href="login">Login</a></li>
-    <li><a href="register">Register</a></li>
+    <li><a href="products" class ="active">Products</a></li>
+    {{if .UserID }}
+        <li><a href="cart">Cart</a></li>
+        <li><a href="profile">Profile</a></li>
+        <li><a href="/api/users/logout">Logout</a></li>
+    {{else}}
+        <li><a href="login">Login</a></li>
+        <li><a href="register">Register</a></li>
+    {{end}}
   </ul>
 </nav>
 
@@ -27,35 +32,38 @@
   <select id="categorySelect" onchange="filterProductsByCategory(this.value)">
     <option value="">All Categories</option>
   </select>
-
+{{if .IsAdmin}}
   <input id="newCategoryInput" type="text" placeholder="New category name" />
   <button id="addCategoryBtn">Add Category</button>
   <button id="removeCategoryBtn">Remove Category</button>
 </div>
+{{end}}
 
 <!-- Products render here -->
 <div class="container">
   <div class="product-grid" id="productGrid"></div>
 </div>
 
+{{if .IsAdmin}}
 <!-- Add product -->
-<div class="add-product">
-  <h2>Add Product</h2>
+    <div class="add-product">
+    <h2>Add Product</h2>
 
-  <input id="name" placeholder="Product Name" />
-  <input id="description" placeholder="Description" />
-  <input id="manufacturer" placeholder="Manufacturer" />
-  <input id="stock" type="number" placeholder="Stock" />
-  <input id="price" type="number" step="0.01" placeholder="Price" />
+    <input id="name" placeholder="Product Name" />
+    <input id="description" placeholder="Description" />
+    <input id="manufacturer" placeholder="Manufacturer" />
+    <input id="stock" type="number" placeholder="Stock" />
+    <input id="price" type="number" step="0.01" placeholder="Price" />
 
-  <select id="categorySelectForAdd">
-    <option value="">Select a Category</option>
-  </select>
+    <select id="categorySelectForAdd">
+        <option value="">Select a Category</option>
+    </select>
 
-  <button onclick="addProduct()">Add Product</button>
-</div>
+    <button onclick="addProduct()">Add Product</button>
+    </div>
 
 <script src="/scripts/products.js"></script>
 <script src="/scripts/categories.js"></script>
+{{end}}
 </body>
 </html>

@@ -4,17 +4,18 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"os"
 )
 
-var jwtKey = []byte("super-secret")
+var jwtKey = []byte(os.Getenv("JWL_SECRET"))
 
 type Claims struct {
-	UserID  uint   `json:"user_id"`
-	IsAdmin string `json:"is_admin"`
+	UserID  int  `json:"user_id"`
+	IsAdmin bool `json:"is_admin"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(userID uint) (string, error) {
+func GenerateToken(userID int, is_admin bool) (string, error) {
 	claims := Claims{
 		UserID:  userID,
 		IsAdmin: is_admin,

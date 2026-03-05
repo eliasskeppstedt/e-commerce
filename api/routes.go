@@ -1,6 +1,7 @@
 package api
 
 import (
+	"ecommerce/duckyarmy/internal/auth"
 	"ecommerce/duckyarmy/internal/cart"
 	"ecommerce/duckyarmy/internal/category"
 	"ecommerce/duckyarmy/internal/customer"
@@ -14,28 +15,60 @@ import (
 
 func RegisterWebRouts(engine *gin.Engine) {
 	//standard sidor
-	engine.GET("/", func(ctx *gin.Context) {
-		// Return HTTP response
+	engine.GET("/", auth.Middleware(), func(ctx *gin.Context) {
+		claimsValue, exists := ctx.Get("auth_token")
+		if exists {
+			claims := claimsValue.(*auth.Claims)
+			fmt.Println("claims.UserID", claims.UserID)
+			ctx.HTML(http.StatusOK, "homePage.html", gin.H{
+				"UserID":  claims.UserID,
+				"IsAdmin": claims.IsAdmin})
+			return
+		}
 		ctx.HTML(http.StatusOK, "homePage.html", gin.H{})
-		fmt.Println("Hompage works")
+		fmt.Println("Homepage works")
 	})
 
-	engine.GET("/products", func(ctx *gin.Context) {
-		// Return HTTP response
+	engine.GET("/products", auth.Middleware(), func(ctx *gin.Context) {
+		claimsValue, exists := ctx.Get("auth_token")
+		if exists {
+			claims := claimsValue.(*auth.Claims)
+			fmt.Println("claims.UserID", claims.UserID)
+			ctx.HTML(http.StatusOK, "productsPage.html", gin.H{
+				"UserID":  claims.UserID,
+				"IsAdmin": claims.IsAdmin})
+			return
+		}
 		ctx.HTML(http.StatusOK, "productsPage.html", gin.H{})
-		fmt.Println("productspage works")
+		fmt.Println("Productpage works")
 	})
 
-	engine.GET("/categories", func(ctx *gin.Context) {
-		// Return HTTP response
-		ctx.HTML(http.StatusOK, "categoriesPage.html", gin.H{})
-		fmt.Println("categoriespage works")
+	engine.GET("/cart", auth.Middleware(), func(ctx *gin.Context) {
+		claimsValue, exists := ctx.Get("auth_token")
+		if exists {
+			claims := claimsValue.(*auth.Claims)
+			fmt.Println("claims.UserID", claims.UserID)
+			ctx.HTML(http.StatusOK, "cartPage.html", gin.H{
+				"UserID":  claims.UserID,
+				"IsAdmin": claims.IsAdmin})
+			return
+		}
+		ctx.HTML(http.StatusUnauthorized, "loginPage.html", gin.H{})
+		fmt.Println("Productpage works")
 	})
 
-	engine.GET("/cart", func(ctx *gin.Context) {
-		// Return HTTP response
-		ctx.HTML(http.StatusOK, "cartPage.html", gin.H{})
-		fmt.Println("Hompage works")
+	engine.GET("/profile", auth.Middleware(), func(ctx *gin.Context) {
+		claimsValue, exists := ctx.Get("auth_token")
+		if exists {
+			claims := claimsValue.(*auth.Claims)
+			fmt.Println("claims.UserID", claims.UserID)
+			ctx.HTML(http.StatusOK, "profilePage.html", gin.H{
+				"UserID":  claims.UserID,
+				"IsAdmin": claims.IsAdmin})
+			return
+		}
+		ctx.HTML(http.StatusUnauthorized, "loginPage.html", gin.H{})
+		fmt.Println("Productpage works")
 	})
 
 	engine.GET("/login", func(ctx *gin.Context) {
@@ -62,8 +95,10 @@ func RegisterApiRouts(
 
 	// registrera handlers för kund
 	fmt.Println("registering user handler")
-	engine.POST("/api/users/register", userHandler.CreateAccount)
-	engine.GET("/api/users/:user_id", userHandler.GetUserByUsername)
+	engine.POST("/api/users/register", userHandler.RegisterUser)
+	engine.POST("/api/users/login", userHandler.UserLogin)
+	engine.GET("/api/users/logout", userHandler.UserLogout)
+	engine.GET("/api/users/profile", auth.Middleware(), userHandler.GetUserByID)
 
 	// handlers för produkter
 	engine.GET("/api/products", productHandler.GetProducts)
@@ -79,4 +114,5 @@ func RegisterApiRouts(
 	engine.POST("/api/categories", categoryHandler.CreateCategory)
 	engine.DELETE("/api/categories/:id", categoryHandler.DeleteCategory)
 
+	//engine.POST("/api/products", productHandler.CreateProduct)
 }

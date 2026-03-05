@@ -21,8 +21,7 @@ func Middleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("userID", claims.UserID)
-		c.Set("isAdmin", claims.IsAdmin)
+		c.Set("auth_token", claims)
 
 		c.Next()
 	}

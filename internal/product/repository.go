@@ -104,6 +104,8 @@ func (r *mysqlProductRepository) GetProductStock(id int) (int, error) {
 	}
 
 	return _id, nil
+}
+
 // uppdatera produkters pris/stock
 func (r *mysqlProductRepository) updateProduct(id int, stock int, price float64) error {
 	_, err := r.db.Exec(`

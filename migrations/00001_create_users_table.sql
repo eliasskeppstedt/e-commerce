@@ -10,6 +10,7 @@ CREATE TABLE `users` (
   `address` varchar(255) DEFAULT NULL,
   `zip_code` varchar(6) DEFAULT NULL,
   `phone_number` varchar(25) DEFAULT NULL,
+  `is_admin` BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY (`user_id`)
 );
 -- +goose StatementEnd

@@ -15,6 +15,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
+	"github.com/pressly/goose/v3"
 )
 
 func main() {
@@ -25,6 +26,11 @@ func main() {
 
 	// Initialize database
 	db := tmpDbConfig()
+
+	goose.SetDialect("mysql")
+	if err := goose.Up(db, "migrations"); err != nil {
+		log.Fatal(err)
+	}
 
 	// USER SETUP
 	userRepo := customer.NewMysqlUserRepository(db)
