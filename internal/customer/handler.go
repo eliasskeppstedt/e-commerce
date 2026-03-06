@@ -2,6 +2,7 @@ package customer
 
 import (
 	"ecommerce/duckyarmy/internal/auth"
+	"ecommerce/duckyarmy/internal/cart"
 	"fmt"
 	"net/http"
 
@@ -9,11 +10,12 @@ import (
 )
 
 type UserHandler struct {
-	service *userService1
+	service  *userService1
+	cService cart.CartService
 }
 
-func NewUserHandler(s *userService1) *UserHandler {
-	return &UserHandler{service: s}
+func NewUserHandler(s *userService1, c cart.CartService) *UserHandler {
+	return &UserHandler{service: s, cService: c}
 }
 
 func (h *UserHandler) RegisterUser(ctx *gin.Context) {
@@ -28,7 +30,7 @@ func (h *UserHandler) RegisterUser(ctx *gin.Context) {
 	phone_number := ctx.PostForm("phone_number")
 
 	fmt.Println("Login1 username, password =", username, password)
-	err := h.service.registerUser(username,
+	userID, err := h.service.registerUser(username,
 		password,
 		email,
 		first_name,
@@ -40,11 +42,12 @@ func (h *UserHandler) RegisterUser(ctx *gin.Context) {
 	if err != nil {
 		fmt.Println("ERROR UserLogin in handler:", err)
 		ctx.Redirect(http.StatusSeeOther, "/register")
-	} else {
-		fmt.Println("userRegister complete")
-		ctx.Redirect(http.StatusSeeOther, "/login")
+		return
 	}
 
+	err = h.cService.CreateCart(userID)
+	fmt.Println("userRegister complete, error? : ", err)
+	ctx.Redirect(http.StatusSeeOther, "/login")
 }
 
 func (h *UserHandler) UserLogin(ctx *gin.Context) {
@@ -78,24 +81,28 @@ func (h *UserHandler) UserLogout(ctx *gin.Context) {
 
 func (h *UserHandler) GetUserByID(ctx *gin.Context) {
 	claimsValue, exists := ctx.Get("auth_token")
-	if exists {
-		claims := claimsValue.(*auth.Claims)
-		userID := claims.UserID
-
-		user, err := h.service.getUserByID(userID)
-		if err != nil {
-			return
-		}
-		ctx.JSON(http.StatusOK, gin.H{
-			"user_id":    user.UserID,
-			"username":   user.UserName,
-			"email":      user.Email,
-			"first_name": user.FirstName,
-			"last_name":  user.LastName,
-			"address":    user.Address,
-			"zip_code":   user.ZipCode,
-			"phone":      user.PhoneNumber,
+	if !exists {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "bad request",
 		})
-
+		return
 	}
+	claims := claimsValue.(*auth.Claims)
+	userID := claims.UserID
+
+	user, err := h.service.getUserByID(userID)
+	if err != nil {
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"user_id":    user.UserID,
+		"username":   user.UserName,
+		"email":      user.Email,
+		"first_name": user.FirstName,
+		"last_name":  user.LastName,
+		"address":    user.Address,
+		"zip_code":   user.ZipCode,
+		"phone":      user.PhoneNumber,
+	})
+
 }

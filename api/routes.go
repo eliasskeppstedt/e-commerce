@@ -7,6 +7,7 @@ import (
 	"ecommerce/duckyarmy/internal/customer"
 	"ecommerce/duckyarmy/internal/order"
 	"ecommerce/duckyarmy/internal/product"
+	"ecommerce/duckyarmy/internal/review"
 	"fmt"
 	"net/http"
 
@@ -71,6 +72,20 @@ func RegisterWebRouts(engine *gin.Engine) {
 		fmt.Println("Productpage works")
 	})
 
+	engine.GET("/order", auth.Middleware(), func(ctx *gin.Context) {
+		claimsValue, exists := ctx.Get("auth_token")
+		if exists {
+			claims := claimsValue.(*auth.Claims)
+			fmt.Println("claims.UserID", claims.UserID)
+			ctx.HTML(http.StatusOK, "orderPage.html", gin.H{
+				"UserID":  claims.UserID,
+				"IsAdmin": claims.IsAdmin})
+			return
+		}
+		ctx.HTML(http.StatusUnauthorized, "loginPage.html", gin.H{})
+		fmt.Println("Productpage works")
+	})
+
 	engine.GET("/login", func(ctx *gin.Context) {
 		// Return HTTP response
 		ctx.HTML(http.StatusOK, "loginPage.html", gin.H{})
@@ -81,6 +96,16 @@ func RegisterWebRouts(engine *gin.Engine) {
 		ctx.HTML(http.StatusOK, "registerPage.html", gin.H{})
 		fmt.Println("productspage works")
 	})
+
+	engine.GET("/orders", auth.Middleware(), func(ctx *gin.Context) {
+
+		claimsValue, _ := ctx.Get("auth_token")
+		claims := claimsValue.(*auth.Claims)
+
+		ctx.HTML(http.StatusOK, "ordersPage.html", gin.H{
+			"UserID": claims.UserID,
+		})
+	})
 }
 
 func RegisterApiRouts(
@@ -90,6 +115,7 @@ func RegisterApiRouts(
 	cartHandler *cart.CartHandler,
 	orderHandler *order.OrderHandler,
 	categoryHandler *category.CategoryHandler,
+	reviewHandler *review.ReviewHandler,
 
 ) {
 
@@ -103,16 +129,26 @@ func RegisterApiRouts(
 	// handlers för produkter
 	engine.GET("/api/products", productHandler.GetProducts)
 	engine.POST("/api/products", productHandler.CreateProduct)
-
-	engine.POST("/api/cart/items", cartHandler.AddItem)
-	engine.POST("/api/cart/checkout", orderHandler.CheckOut)
 	engine.DELETE("/api/products/:id", productHandler.DeleteProduct)
 	engine.PUT("/api/products/:id", productHandler.UpdateProduct)
+
+	engine.GET("/api/cart", auth.Middleware(), cartHandler.GetCartProducts)
+	engine.POST("api/product/add", auth.Middleware(), cartHandler.AddToCart)
+
+	engine.DELETE("/api/cart/items/:product_id", auth.Middleware(), cartHandler.RemoveItem)
 
 	// handlers för kategorier
 	engine.GET("/api/categories", categoryHandler.GetCategories)
 	engine.POST("/api/categories", categoryHandler.CreateCategory)
 	engine.DELETE("/api/categories/:id", categoryHandler.DeleteCategory)
+
+	engine.POST("/api/cart/checkout", auth.Middleware(), orderHandler.CheckOut)
+
+	engine.GET("/api/reviews/:product_id", reviewHandler.GetReviews)
+	engine.POST("/api/reviews", auth.Middleware(), reviewHandler.AddReview)
+	engine.DELETE("/api/reviews/:id", auth.Middleware(), reviewHandler.DeleteReview)
+
+	engine.GET("/api/orders", auth.Middleware(), orderHandler.GetOrders)
 
 	//engine.POST("/api/products", productHandler.CreateProduct)
 }

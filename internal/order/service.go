@@ -4,11 +4,11 @@ import (
 	"ecommerce/duckyarmy/internal/cart"
 	"ecommerce/duckyarmy/internal/product"
 	"errors"
-	"fmt"
 )
 
 type OrderService interface {
 	CheckOut(userID int) error
+	GetOrders(userID int) ([]OrderWithItems, error)
 }
 
 type orderService1 struct {
@@ -25,10 +25,8 @@ func NewOrderService1(
 }
 
 func (s *orderService1) CheckOut(userID int) error {
-	// här börjar en transaktion, bör följa ACID.......
-	cart, err := s.cartRepo.GetCartByUserID(userID)
-	fmt.Println(cart.UserID)
 
+	cart, err := s.cartRepo.GetCartByUserID(userID)
 	if err != nil {
 		return err
 	}
@@ -37,22 +35,39 @@ func (s *orderService1) CheckOut(userID int) error {
 	if err != nil {
 		return err
 	}
+
 	if len(cartItems) == 0 {
 		return errors.New("cannot checkout empty order")
 	}
 
-	orderItems := make([]OrderItem, len(cartItems))
-
-	for i, cartItem := range cartItems {
-		fmt.Println(cartItem.Quantity, cartItem.ProductID)
-		orderItems[i].Quantity = cartItem.Quantity
-		orderItems[i].ProductID = cartItem.ProductID
-		price := 1.5 //err, price := s.productRepo.GetPrice(cartItem.ProductID)
-		fmt.Println("orderService1 CheckOut: hårdkodat pris, väntar på implementering i product")
-		orderItems[i].PriceAtPurchase = price
+	// skapa order EN gång
+	orderID, err := s.orderRepo.CreateOrder(userID)
+	if err != nil {
+		return err
 	}
-	fmt.Println(cart.UserID, orderItems[0].Quantity, orderItems[0].PriceAtPurchase, orderItems[0].ProductID)
-	err = s.orderRepo.CheckOut(cart.UserID, orderItems)
 
-	return err
+	for _, cartItem := range cartItems {
+
+		err = s.orderRepo.AddOrderItem(OrderItem{
+			OrderID:         orderID,
+			ProductID:       cartItem.ProductID,
+			Quantity:        cartItem.Quantity,
+			PriceAtPurchase: 1.5,
+		})
+
+		if err != nil {
+			return err
+		}
+	}
+
+	err = s.cartRepo.SetCartInactive(cart.CartID)
+	if err != nil {
+		return err
+	}
+
+	return s.cartRepo.CreateCart(userID)
+}
+
+func (s *orderService1) GetOrders(userID int) ([]OrderWithItems, error) {
+	return s.orderRepo.GetOrdersByUser(userID)
 }

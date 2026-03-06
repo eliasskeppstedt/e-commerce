@@ -2,16 +2,20 @@ package cart
 
 import (
 	"database/sql"
+	"fmt"
 )
 
 type CartRepository interface {
-	CreateCart(userID int) (*Cart, error)
-	GetCartByUserID(userID int) (*Cart, error)
+	CreateCart(userID int) error
 
 	AddItem(cartID, productID, quantity int) error
 	RemoveItem(cartID, productID, quantity int) error
 
 	GetItems(cartID int) ([]CartItem, error)
+
+	GetCartByUserID(userID int) (*Cart, error)
+	ClearCart(cartID int) error
+	SetCartInactive(cartID int) error
 }
 
 type mysqlCartRepository struct {
@@ -22,22 +26,14 @@ func NewMysqlCartRepository(db *sql.DB) *mysqlCartRepository {
 	return &mysqlCartRepository{db}
 }
 
-func (r *mysqlCartRepository) CreateCart(userID int) (*Cart, error) {
-	res, err := r.db.Exec(`
+func (r *mysqlCartRepository) CreateCart(userID int) error {
+	fmt.Println("test2")
+	_, err := r.db.Exec(`
 		INSERT INTO carts (user_id, status) 
 		VALUES (?, 'active')`,
 		userID,
 	)
-	if err != nil {
-		return nil, err
-	}
-
-	id, err := res.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
-
-	return &Cart{CartID: int(id)}, nil
+	return err
 }
 
 func (r *mysqlCartRepository) GetCartByUserID(userID int) (*Cart, error) {
@@ -48,11 +44,12 @@ func (r *mysqlCartRepository) GetCartByUserID(userID int) (*Cart, error) {
 		userID,
 	)
 	err := row.Scan(&cart.CartID)
-
 	if err != nil {
+		fmt.Println(cart.UserID, cart.CartID)
 		return nil, err
 	}
 	cart.UserID = userID
+
 	return &cart, nil
 }
 
@@ -158,4 +155,25 @@ func (r *mysqlCartRepository) GetItems(cartID int) ([]CartItem, error) {
 	}
 
 	return items, nil
+}
+
+func (r *mysqlCartRepository) ClearCart(cartID int) error {
+
+	_, err := r.db.Exec(`
+		DELETE FROM cart_items
+		WHERE cart_id = ?
+	`, cartID)
+
+	return err
+}
+
+func (r *mysqlCartRepository) SetCartInactive(cartID int) error {
+
+	_, err := r.db.Exec(`
+		UPDATE carts
+		SET status = 'ordered'
+		WHERE cart_id = ?
+	`, cartID)
+
+	return err
 }

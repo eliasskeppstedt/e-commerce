@@ -13,7 +13,7 @@ type userRepository interface {
 		last_name,
 		address,
 		zip_code,
-		phone_number string) error
+		phone_number string) (int, error)
 	userLogin(loginInput, password string) (int, bool, error)
 	getUserByID(userID int) (*user, error)
 }
@@ -33,12 +33,19 @@ func (r *UserRepository) registerUser(username,
 	last_name,
 	address,
 	zip_code,
-	phone_number string) (err error) {
+	phone_number string) (int, error) {
 	//If username already exist and username is Unique this will give an error
 	query := "INSERT INTO users (username, password, email, first_name, last_name, address, zip_code, phone_number) VALUES (?,?,?,?,?,?,?,?)"
 
-	_, err = r.db.Exec(query, username, password, email, first_name, last_name, address, zip_code, phone_number)
-	return
+	res, err := r.db.Exec(query, username, password, email, first_name, last_name, address, zip_code, phone_number)
+
+	if err != nil {
+		return 0, err
+	}
+
+	userID, err := res.LastInsertId()
+
+	return int(userID), err
 }
 
 func (r *UserRepository) userLogin(loginInput, password string) (int, bool, error) {

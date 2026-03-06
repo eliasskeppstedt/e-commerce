@@ -2,35 +2,35 @@ package product
 
 type productService interface {
 	getByProductID(id int) (Product, error)
-	getAll() ([]Product, error)
+	GetAll() ([]Product, error)
 	registerProduct(product Product) error
 	deleteProduct(id int) error
 }
 
-type productServiceImp struct {
+type ProductServiceImp struct {
 	repo ProductRepository
 }
 
-func NewProductServiceImp(r ProductRepository) *productServiceImp {
-	return &productServiceImp{repo: r}
+func NewProductServiceImp(r ProductRepository) *ProductServiceImp {
+	return &ProductServiceImp{repo: r}
 }
 
-func (s *productServiceImp) getByProductID(id int) (Product, error) {
+func (s *ProductServiceImp) getByProductID(id int) (Product, error) {
 	return s.repo.GetByProductID(id)
 }
 
-func (s *productServiceImp) getAll() ([]Product, error) {
+func (s *ProductServiceImp) GetAll() ([]Product, error) {
 	return s.repo.getAll()
 }
 
-func (s *productServiceImp) registerProduct(product Product) error {
+func (s *ProductServiceImp) registerProduct(product Product) error {
 	return s.repo.registerProduct(product)
 }
 
-func (s *productServiceImp) deleteProduct(id int) error {
+func (s *ProductServiceImp) deleteProduct(id int) error {
 	return s.repo.deleteProduct(id)
 }
 
-func (s *productServiceImp) updateProduct(id int, stock int, price float64) error {
+func (s *ProductServiceImp) updateProduct(id int, stock int, price float64) error {
 	return s.repo.updateProduct(id, stock, price)
 }

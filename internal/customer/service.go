@@ -1,6 +1,7 @@
 package customer
 
 import (
+	"ecommerce/duckyarmy/internal/cart"
 	"fmt"
 )
 
@@ -12,18 +13,19 @@ type userService interface {
 		last_name,
 		address,
 		zip_code,
-		phone_number string) error
+		phone_number string) (int, error)
 	userLogin(loginInput, password string) (int, bool, error)
 	getUserByID(userID int) (*user, error)
 }
 
 // uhm better name maybe 😅
 type userService1 struct {
-	repo userRepository
+	uRepo userRepository
+	cRepo cart.CartRepository
 }
 
-func NewUserService1(r userRepository) *userService1 {
-	return &userService1{repo: r}
+func NewUserService1(r userRepository, c cart.CartRepository) *userService1 {
+	return &userService1{uRepo: r, cRepo: c}
 }
 
 func (s *userService1) registerUser(username,
@@ -33,9 +35,9 @@ func (s *userService1) registerUser(username,
 	last_name,
 	address,
 	zip_code,
-	phone_number string) error {
+	phone_number string) (int, error) {
 
-	return s.repo.registerUser(username,
+	return s.uRepo.registerUser(username,
 		password,
 		email,
 		first_name,
@@ -46,7 +48,7 @@ func (s *userService1) registerUser(username,
 }
 
 func (s *userService1) userLogin(loginInput, password string) (int, bool, error) {
-	userID, isAdmin, err := s.repo.userLogin(loginInput, password)
+	userID, isAdmin, err := s.uRepo.userLogin(loginInput, password)
 	if err != nil {
 		fmt.Println("error userLogin in service:", err)
 		return -1, false, err //-1 errorcode borde vi göra någonting med den
@@ -56,5 +58,5 @@ func (s *userService1) userLogin(loginInput, password string) (int, bool, error)
 }
 
 func (s *userService1) getUserByID(userID int) (*user, error) {
-	return s.repo.getUserByID(userID)
+	return s.uRepo.getUserByID(userID)
 }

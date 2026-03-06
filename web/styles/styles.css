@@ -63,8 +63,13 @@ h2, p {
 /* Product Grid */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(20%, 1fr));
-  gap: 2%;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.product-card {
+  width: 100%;
+  min-height: 350px;
 }
 
 .product-card {
@@ -302,4 +307,30 @@ button:hover {
 
 .category-bar button:hover {
     background-color: #00f2fe;
+}
+
+.product-main {
+  display: flex;
+  gap: 40px;
+  margin-top: 15px;
+}
+
+.product-left {
+  flex: 1;
+}
+
+.product-right {
+  flex: 1;
+}
+
+.product-right textarea {
+  width: 100%;
+  height: 70px;
+  margin-bottom: 8px;
+}
+
+.reviews {
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
 }

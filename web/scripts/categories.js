@@ -47,14 +47,15 @@ if (addBtn && newInput) {
 
     fetch("/api/categories", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ category_name: newCategory })
     })
-      .then(() => {
-        newInput.value = "";
-        loadCategories();
-      })
-      .catch(err => console.error("Failed to add category:", err));
+    .then(() => {
+      newInput.value = "";
+      loadCategories();
+    });
   });
 }
 
@@ -64,20 +65,13 @@ if (removeBtn) {
   removeBtn.addEventListener("click", () => {
     const select = document.getElementById("categorySelect");
     const categoryId = select?.value;
-    if (!categoryId) return alert("Please select a category to delete.");
-    if (!confirm("Delete this category? This will remove it from DB.")) return;
 
-    fetch(`/api/categories/${categoryId}`, { method: "DELETE" })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          alert(data.error);
-          return;
-        }
-        loadCategories();
-        filterProductsByCategory(document.getElementById("categorySelect")?.value || "");
-      })
-      .catch(err => console.error("Failed to delete category:", err));
+    if (!categoryId) return alert("Please select a category to delete.");
+
+    fetch(`/api/categories/${categoryId}`, {
+      method: "DELETE"
+    })
+    .then(() => loadCategories());
   });
 }
 

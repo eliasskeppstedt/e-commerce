@@ -10,6 +10,8 @@ type ProductRepository interface {
 	deleteProduct(id int) error
 	GetProductStock(id int) (int, error)
 	updateProduct(id int, stock int, price float64) error
+	UpdateStock(productID, quantity int) error
+	IncreaseStock(productID, quantity int) error
 }
 
 // SQL GREJS
@@ -115,5 +117,27 @@ func (r *mysqlProductRepository) updateProduct(id int, stock int, price float64)
 		WHERE product_id = ?`,
 		stock, price, id,
 	)
+	return err
+}
+
+func (r *mysqlProductRepository) UpdateStock(productID, quantity int) error {
+
+	_, err := r.db.Exec(`
+		UPDATE products
+		SET stock = stock - ?
+		WHERE product_id = ?
+	`, quantity, productID)
+
+	return err
+}
+
+func (r *mysqlProductRepository) IncreaseStock(productID, quantity int) error {
+
+	_, err := r.db.Exec(`
+		UPDATE products
+		SET stock = stock + ?
+		WHERE product_id = ?
+	`, quantity, productID)
+
 	return err
 }

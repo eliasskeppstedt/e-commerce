@@ -7,6 +7,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 RUN go install github.com/air-verse/air@latest
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 
 COPY . .
 
@@ -39,6 +40,7 @@ WORKDIR /app
 # kopiera binären och frontend från builder-builden till nuvarande build
 COPY --from=builder /app/app .
 COPY --from=builder /app/web ./web 
+COPY --from=builder /app/migrations ./migrations
 
 # containern lyssnar på port 8080
 # kör applikationen

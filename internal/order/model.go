@@ -16,3 +16,16 @@ type OrderItem struct {
 	Quantity        int     `json:"quantity"`
 	PriceAtPurchase float64 `json:"price_at_purchase"`
 }
+
+type OrderWithItems struct {
+	OrderID int
+	Date    string
+	Status  string
+	Items   []OrderItemWithProduct
+}
+
+type OrderItemWithProduct struct {
+	ProductName string
+	Quantity    int
+	Price       float64
+}
