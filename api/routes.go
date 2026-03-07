@@ -99,6 +99,7 @@ func RegisterApiRouts(
 	engine.POST("/api/users/login", userHandler.UserLogin)
 	engine.GET("/api/users/logout", userHandler.UserLogout)
 	engine.GET("/api/users/profile", auth.Middleware(), userHandler.GetUserByID)
+	engine.POST("/api/users/infoUpdate", auth.Middleware(), userHandler.UpdateUserInfo)
 
 	// handlers för produkter
 	engine.GET("/api/products", productHandler.GetProducts)

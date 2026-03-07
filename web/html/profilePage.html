@@ -30,7 +30,7 @@
 </nav>
 
 <div class="signup-container profile-container">
-  <form class="signup-form" action="/profile" method="POST">
+  <form class="signup-form" action="/api/users/infoUpdate" method="POST">
     <h2>👤 My Profile 👤</h2>
 
     <div class="input-group">
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
     fetch("/api/users/profile")
     .then(response => {
         if (!response.ok) {
-            window.location.href = "/login"; // redirect if not authorized
+            window.location.href = "/login";
             return;
         }
         return response.json();

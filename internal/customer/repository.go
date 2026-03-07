@@ -6,7 +6,8 @@ import (
 )
 
 type userRepository interface {
-	registerUser(username,
+	registerUser(
+		username,
 		password,
 		email,
 		first_name,
@@ -14,8 +15,18 @@ type userRepository interface {
 		address,
 		zip_code,
 		phone_number string) error
+
 	userLogin(loginInput, password string) (int, bool, error)
 	getUserByID(userID int) (*user, error)
+
+	updateUserInfo(
+		email,
+		first_name,
+		last_name,
+		address,
+		zip_code,
+		phone_number string,
+		userID int) (err error)
 }
 
 type UserRepository struct {
@@ -69,4 +80,17 @@ func (r *UserRepository) getUserByID(userID int) (*user, error) {
 		return nil, err
 	}
 	return &u, nil
+}
+
+func (r *UserRepository) updateUserInfo(
+	email,
+	first_name,
+	last_name,
+	address,
+	zip_code,
+	phone_number string,
+	userID int) (err error) {
+	_, err = r.db.Exec("UPDATE users SET email = ?, first_name = ?, last_name = ?, address = ?, zip_code = ?, phone_number = ? WHERE user_id = ?",
+		email, first_name, last_name, address, zip_code, phone_number, userID)
+	return
 }

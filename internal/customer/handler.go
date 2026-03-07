@@ -80,9 +80,9 @@ func (h *UserHandler) GetUserByID(ctx *gin.Context) {
 	claimsValue, exists := ctx.Get("auth_token")
 	if exists {
 		claims := claimsValue.(*auth.Claims)
-		userID := claims.UserID
+		//userID := claims.UserID ??? borde kunna köra claims.UserID direkt i metoden under
 
-		user, err := h.service.getUserByID(userID)
+		user, err := h.service.getUserByID(claims.UserID)
 		if err != nil {
 			return
 		}
@@ -98,4 +98,23 @@ func (h *UserHandler) GetUserByID(ctx *gin.Context) {
 		})
 
 	}
+}
+
+func (h *UserHandler) UpdateUserInfo(ctx *gin.Context) {
+	claimsValue, exists := ctx.Get("auth_token")
+	if exists {
+		claims := claimsValue.(*auth.Claims)
+		email := ctx.PostForm("email")
+		first_name := ctx.PostForm("first_name")
+		last_name := ctx.PostForm("last_name")
+		address := ctx.PostForm("address")
+		zip_code := ctx.PostForm("zip_code")
+		phone_number := ctx.PostForm("phone_number")
+		err := h.service.updateUserInfo(email, first_name, last_name, address, zip_code, phone_number, claims.UserID)
+		if err != nil {
+			fmt.Println("error UpdateUserInfo in handler:", err)
+			fmt.Println("UpdateUserInfo ERROR ERROR ERROR")
+		}
+	}
+	ctx.Redirect(http.StatusSeeOther, "/profile")
 }
