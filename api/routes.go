@@ -71,6 +71,20 @@ func RegisterWebRouts(engine *gin.Engine) {
 		fmt.Println("Productpage works")
 	})
 
+	engine.GET("/orders", auth.Middleware(), func(ctx *gin.Context) {
+		claimsValue, exists := ctx.Get("auth_token")
+		if exists {
+			claims := claimsValue.(*auth.Claims)
+			fmt.Println("claims.UserID", claims.UserID)
+			ctx.HTML(http.StatusOK, "ordersPage.html", gin.H{
+				"UserID":  claims.UserID,
+				"IsAdmin": claims.IsAdmin})
+			return
+		}
+		ctx.HTML(http.StatusUnauthorized, "loginPage.html", gin.H{})
+		fmt.Println("Productpage works")
+	})
+
 	engine.GET("/login", func(ctx *gin.Context) {
 		// Return HTTP response
 		ctx.HTML(http.StatusOK, "loginPage.html", gin.H{})
@@ -100,7 +114,7 @@ func RegisterApiRouts(
 	engine.GET("/api/users/logout", userHandler.UserLogout)
 	engine.GET("/api/users/profile", auth.Middleware(), userHandler.GetUserByID)
 	engine.POST("/api/users/infoUpdate", auth.Middleware(), userHandler.UpdateUserInfo)
-
+	engine.POST("/api/users/update", auth.Middleware(), userHandler.UpdateUserInfo)
 	// handlers för produkter
 	engine.GET("/api/products", productHandler.GetProducts)
 	engine.POST("/api/products", productHandler.CreateProduct)
