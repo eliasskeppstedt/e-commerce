@@ -12,7 +12,8 @@ type CartRepository interface {
 	AddItem(ctx context.Context, tx *sql.Tx, cartID, productID, quantity int) error
 	RemoveItem(ctx context.Context, tx *sql.Tx, cartID, productID, quantity int) error
 
-	GetItems(ctx context.Context, tx *sql.Tx, cartID int) ([]CartItem, error)
+	RequestCartItems(ctx context.Context, tx *sql.Tx, cartID int) ([]CartItemRequest, error)
+	MarkCartAsCheckedOut(ctx context.Context, tx *sql.Tx, cartID int) error
 }
 
 type mysqlCartRepository struct {
@@ -118,28 +119,35 @@ func (r *mysqlCartRepository) RemoveItem(ctx context.Context, tx *sql.Tx, cartID
 	return err
 }
 
-func (r *mysqlCartRepository) GetItems(ctx context.Context, tx *sql.Tx, cartID int) ([]CartItem, error) {
-	rows, err := r.db.Query(`
-		SELECT product_id, quantity
-		FROM cart_items
-		WHERE cart_id = ?`,
+func (r *mysqlCartRepository) RequestCartItems(ctx context.Context, tx *sql.Tx, cartID int) ([]CartItemRequest, error) {
+	rows, err := tx.QueryContext(
+		ctx,
+		`SELECT 
+			p.product_id, 
+			p.product_name, 
+			p.price, 
+			ci.quantity, 
+			(p.price * ci.quantity) AS subtotal
+		FROM cart_items ci
+		JOIN products p ON ci.product_id = p.product_id
+		WHERE ci.cart_id = ?`,
 		cartID,
 	)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	var items []CartItem
+	var items []CartItemRequest
 
 	for rows.Next() {
-		var item CartItem
+		var item CartItemRequest
 
-		err := rows.Scan(&item.ProductID, &item.Quantity)
+		err := rows.Scan(&item.ProductID, &item.ProductName, &item.Price, &item.Quantity, &item.Subtotal)
 		if err != nil {
 			return nil, err
 		}
 
-		item.CartID = cartID
 		items = append(items, item)
 	}
 
@@ -148,4 +156,16 @@ func (r *mysqlCartRepository) GetItems(ctx context.Context, tx *sql.Tx, cartID i
 	}
 
 	return items, nil
+}
+
+func (r *mysqlCartRepository) MarkCartAsCheckedOut(ctx context.Context, tx *sql.Tx, cartID int) error {
+	_, err := tx.ExecContext(
+		ctx,
+		`UPDATE carts
+		SET status = 'ordered'
+		WHERE cart_id = ?`,
+		cartID,
+	)
+	// hmm nu vid närmare eftertanke borde vi kanske göra en ny cart här, och endast göra första karten vid registrering
+	return err
 }

@@ -8,7 +8,8 @@ import (
 )
 
 type CartService interface {
-	AddItem(ctx context.Context, carttID, productID, quantity int) error
+	AddItem(ctx context.Context, userID, productID, quantity int) error
+	RequestCartItems(ctx context.Context, userID int) ([]CartItemRequest, error)
 }
 
 type cartService1 struct {
@@ -42,15 +43,30 @@ func (s *cartService1) AddItem(ctx context.Context, userID, productID, quantity 
 		return err
 	}
 
-	err = s.productRepo.DecreaseStock(ctx, tx, productID, quantity)
-	if err != nil {
-		return err
-	}
-
 	err = s.cartRepo.AddItem(ctx, tx, cart.CartID, productID, quantity)
 	if err != nil {
 		return err
 	}
 
 	return tx.Commit()
+}
+
+func (s *cartService1) RequestCartItems(ctx context.Context, userID int) ([]CartItemRequest, error) {
+	tx, err := s.tm.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	cart, err := s.cartRepo.GetCartByUserID(ctx, tx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	cartItems, err := s.cartRepo.RequestCartItems(ctx, tx, cart.CartID)
+	if err != nil {
+		return nil, err
+	}
+
+	return cartItems, tx.Commit()
 }

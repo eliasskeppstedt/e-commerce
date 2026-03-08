@@ -1,10 +1,11 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE `orders` (
-  `order_id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int NOT NULL,
-  `status` enum('Processing','In Transit/Transport','Ready for pickup') NOT NULL DEFAULT 'Processing',
-  `date` date,
+  `order_id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+`status` ENUM('Processing','In Transit/Transport','Ready for pickup') NOT NULL DEFAULT 'Processing',
+  `date` DATE DEFAULT (CURDATE()),
+  `subtotal_at_purchase` DECIMAL(10,2) NOT NULL,
   PRIMARY KEY (`order_id`),
   FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 );

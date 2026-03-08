@@ -53,7 +53,7 @@ document.addEventListener("click", function(e) {
 function addToCart(productId) {
   console.log("Adding product:", productId, "type of productId:", typeof productId);
 
-  fetch("/api/cart/items", {
+  fetch("/api/carts/items", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

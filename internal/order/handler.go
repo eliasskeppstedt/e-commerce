@@ -1,7 +1,7 @@
 package order
 
 import (
-	"fmt"
+	"ecommerce/duckyarmy/internal/auth"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -15,13 +15,16 @@ func NewOrderHandler(s *orderService1) *OrderHandler {
 }
 
 func (h *OrderHandler) CheckOut(ctx *gin.Context) {
-	fmt.Println("OrderHandler CheckOut: hårdkodat userID = 1")
-	err := h.service.CheckOut(ctx.Request.Context(), 1)
+	userID := auth.GetUserID(ctx)
+	if userID == -1 {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "did not find user"})
+		return
+	}
+
+	err := h.service.CheckOut(ctx.Request.Context(), userID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		ctx.Redirect(http.StatusSeeOther, "/cartPage")
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(200, gin.H{"message": "order created"})
-	ctx.Redirect(http.StatusSeeOther, "/homePage")
 }

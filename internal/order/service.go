@@ -6,7 +6,6 @@ import (
 	"ecommerce/duckyarmy/internal/product"
 	"ecommerce/duckyarmy/internal/transaction"
 	"errors"
-	"fmt"
 )
 
 type OrderService interface {
@@ -39,34 +38,47 @@ func (s *orderService1) CheckOut(ctx context.Context, userID int) error {
 	if err != nil {
 		return err
 	}
+	defer tx.Rollback()
 
 	cart, err := s.cartRepo.GetCartByUserID(ctx, tx, userID)
-	fmt.Println(cart.UserID)
 
 	if err != nil {
 		return err
 	}
 
-	cartItems, err := s.cartRepo.GetItems(ctx, tx, cart.CartID)
+	cartItems, err := s.cartRepo.RequestCartItems(ctx, tx, cart.CartID)
 	if err != nil {
 		return err
 	}
 	if len(cartItems) == 0 {
-		return errors.New("cannot checkout empty order")
+		return errors.New("cart empty, cant checkout")
 	}
 
 	orderItems := make([]OrderItem, len(cartItems))
+	var subtotal float64
 
 	for i, cartItem := range cartItems {
-		fmt.Println(cartItem.Quantity, cartItem.ProductID)
-		orderItems[i].Quantity = cartItem.Quantity
-		orderItems[i].ProductID = cartItem.ProductID
-		price := 1.5 //err, price := s.productRepo.GetPrice(cartItem.ProductID)
-		fmt.Println("orderService1 CheckOut: hårdkodat pris, väntar på implementering i product")
-		orderItems[i].PriceAtPurchase = price
+		orderItems[i] = OrderItem{
+			ProductID:       cartItem.ProductID,
+			Quantity:        cartItem.Quantity,
+			PriceAtPurchase: cartItem.Price,
+		}
+		err = s.productRepo.DecreaseStock(ctx, tx, cartItem.ProductID, cartItem.Quantity)
+		if err != nil {
+			return err
+		}
+		subtotal += cartItem.Subtotal
 	}
-	fmt.Println(cart.UserID, orderItems[0].Quantity, orderItems[0].PriceAtPurchase, orderItems[0].ProductID)
-	err = s.orderRepo.CheckOut(cart.UserID, orderItems)
 
-	return err
+	err = s.orderRepo.CheckOut(ctx, tx, cart.UserID, subtotal, orderItems)
+	if err != nil {
+		return err
+	}
+
+	err = s.cartRepo.MarkCartAsCheckedOut(ctx, tx, cart.CartID)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

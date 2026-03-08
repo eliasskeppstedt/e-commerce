@@ -16,15 +16,11 @@ func NewCartHandler(s *cartService1) *CartHandler {
 }
 
 func (h *CartHandler) AddItem(ctx *gin.Context) {
-	claimsValue, exists := ctx.Get("auth_token")
+	userID := auth.GetUserID(ctx)
 
-	if !exists {
-		ctx.JSON(http.StatusForbidden, gin.H{"message": "user not authenticated"})
+	if userID == -1 {
 		return
 	}
-
-	claims := claimsValue.(*auth.Claims)
-	userID := claims.UserID
 
 	var req AddToCartRequest
 
@@ -45,4 +41,21 @@ func (h *CartHandler) AddItem(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "product added successfully"})
+}
+
+func (h *CartHandler) RequestCartItems(ctx *gin.Context) {
+	userID := auth.GetUserID(ctx)
+	if userID == -1 {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "user is unauthorized"})
+		return
+	}
+
+	cartItems, err := h.service.RequestCartItems(ctx.Request.Context(), userID)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, cartItems)
 }

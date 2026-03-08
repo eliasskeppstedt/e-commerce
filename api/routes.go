@@ -104,9 +104,6 @@ func RegisterApiRouts(
 	// handlers för produkter
 	engine.GET("/api/products", productHandler.GetProducts)
 	engine.POST("/api/products", productHandler.CreateProduct)
-
-	engine.POST("/api/cart/items", auth.Middleware(), cartHandler.AddItem)
-	engine.POST("/api/cart/checkout", orderHandler.CheckOut)
 	engine.DELETE("/api/products/:id", productHandler.DeleteProduct)
 	engine.PUT("/api/products/:id", productHandler.UpdateProduct)
 
@@ -115,5 +112,7 @@ func RegisterApiRouts(
 	engine.POST("/api/categories", categoryHandler.CreateCategory)
 	engine.DELETE("/api/categories/:id", categoryHandler.DeleteCategory)
 
-	//engine.POST("/api/products", productHandler.CreateProduct)
+	engine.POST("/api/carts/items", auth.Middleware(), cartHandler.AddItem)
+	engine.POST("/api/carts/checkout", auth.Middleware(), orderHandler.CheckOut)
+	engine.GET("/api/carts/items", auth.Middleware(), cartHandler.RequestCartItems)
 }
