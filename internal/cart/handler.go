@@ -28,8 +28,8 @@ func (h *CartHandler) AddItem(ctx *gin.Context) {
 
 	var req AddToCartRequest
 
-	if err := ctx.BindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

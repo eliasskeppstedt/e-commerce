@@ -51,7 +51,7 @@ document.addEventListener("click", function(e) {
 });
 
 function addToCart(productId) {
-  console.log("Adding product:", productId);
+  console.log("Adding product:", productId, "type of productId:", typeof productId);
 
   fetch("/api/cart/items", {
     method: "POST",
@@ -59,7 +59,7 @@ function addToCart(productId) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      product_id: productId
+      product_id: Number(productId)
     })
   });
 }
