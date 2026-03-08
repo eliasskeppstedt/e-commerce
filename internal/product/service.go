@@ -1,5 +1,9 @@
 package product
 
+import (
+	"ecommerce/duckyarmy/internal/transaction"
+)
+
 type productService interface {
 	getByProductID(id int) (Product, error)
 	getAll() ([]Product, error)
@@ -8,11 +12,12 @@ type productService interface {
 }
 
 type productServiceImp struct {
+	tm   transaction.TxManager
 	repo ProductRepository
 }
 
-func NewProductServiceImp(r ProductRepository) *productServiceImp {
-	return &productServiceImp{repo: r}
+func NewProductServiceImp(tm transaction.TxManager, r ProductRepository) *productServiceImp {
+	return &productServiceImp{tm: tm, repo: r}
 }
 
 func (s *productServiceImp) getByProductID(id int) (Product, error) {

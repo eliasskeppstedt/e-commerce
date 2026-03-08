@@ -1,8 +1,10 @@
 package order
 
 import (
+	"context"
 	"ecommerce/duckyarmy/internal/cart"
 	"ecommerce/duckyarmy/internal/product"
+	"ecommerce/duckyarmy/internal/transaction"
 	"errors"
 	"fmt"
 )
@@ -12,28 +14,40 @@ type OrderService interface {
 }
 
 type orderService1 struct {
+	tm          transaction.TxManager
 	orderRepo   OrderRepository
 	cartRepo    cart.CartRepository
 	productRepo product.ProductRepository
 }
 
 func NewOrderService1(
+	tm transaction.TxManager,
 	orderRepo OrderRepository,
 	cartRepo cart.CartRepository,
-	productRepo product.ProductRepository) *orderService1 {
-	return &orderService1{orderRepo: orderRepo, cartRepo: cartRepo, productRepo: productRepo}
+	productRepo product.ProductRepository,
+) *orderService1 {
+	return &orderService1{
+		tm:          tm,
+		orderRepo:   orderRepo,
+		cartRepo:    cartRepo,
+		productRepo: productRepo,
+	}
 }
 
-func (s *orderService1) CheckOut(userID int) error {
-	// här börjar en transaktion, bör följa ACID.......
-	cart, err := s.cartRepo.GetCartByUserID(userID)
+func (s *orderService1) CheckOut(ctx context.Context, userID int) error {
+	tx, err := s.tm.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	cart, err := s.cartRepo.GetCartByUserID(ctx, tx, userID)
 	fmt.Println(cart.UserID)
 
 	if err != nil {
 		return err
 	}
 
-	cartItems, err := s.cartRepo.GetItems(cart.CartID)
+	cartItems, err := s.cartRepo.GetItems(ctx, tx, cart.CartID)
 	if err != nil {
 		return err
 	}

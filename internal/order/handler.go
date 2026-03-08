@@ -16,7 +16,7 @@ func NewOrderHandler(s *orderService1) *OrderHandler {
 
 func (h *OrderHandler) CheckOut(ctx *gin.Context) {
 	fmt.Println("OrderHandler CheckOut: hårdkodat userID = 1")
-	err := h.service.CheckOut(1)
+	err := h.service.CheckOut(ctx.Request.Context(), 1)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		ctx.Redirect(http.StatusSeeOther, "/cartPage")

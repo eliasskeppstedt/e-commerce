@@ -105,7 +105,7 @@ func RegisterApiRouts(
 	engine.GET("/api/products", productHandler.GetProducts)
 	engine.POST("/api/products", productHandler.CreateProduct)
 
-	engine.POST("/api/cart/items", cartHandler.AddItem)
+	engine.POST("/api/cart/items", auth.Middleware(), cartHandler.AddItem)
 	engine.POST("/api/cart/checkout", orderHandler.CheckOut)
 	engine.DELETE("/api/products/:id", productHandler.DeleteProduct)
 	engine.PUT("/api/products/:id", productHandler.UpdateProduct)
