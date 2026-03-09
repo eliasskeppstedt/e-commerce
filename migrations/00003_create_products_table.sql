@@ -11,7 +11,9 @@ CREATE TABLE `products` (
   PRIMARY KEY (`product_id`),
   FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
   ON DELETE RESTRICT
-  ON UPDATE CASCADE 
+  ON UPDATE CASCADE,
+  CONSTRAINT `stock_non_negative` CHECK (`stock` >= 0),
+  CONSTRAINT `price_non_negative` CHECK (`price` >= 0)
 );
 -- +goose StatementEnd
 

@@ -1,12 +1,11 @@
 console.log("productsadmin.js loaded successfully");
 
 document.addEventListener("DOMContentLoaded", () => {
-  // --- Admin flag (optional) ---
   const adminElement = document.getElementById("adminFlag");
   const isAdmin = adminElement && adminElement.getAttribute("data-is-admin") === "true";
   console.log("Admin script running. isAdmin =", isAdmin);
 
-  // --- Fetch and render products ---
+  // --- Render a product card ---
   function renderProduct(p) {
     const grid = document.getElementById("productGrid");
     const card = document.createElement("div");
@@ -24,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    // --- Add admin-only edit/delete buttons ---
+    // Admin-only buttons
     const contentDiv = card.querySelector(".product-content");
     contentDiv.insertAdjacentHTML("beforeend",
       `<button class="edit-btn">Edit</button><button class="delete-btn">Delete</button>`
@@ -36,16 +35,15 @@ document.addEventListener("DOMContentLoaded", () => {
     grid.appendChild(card);
   }
 
-  // --- Load products from backend ---
+  // --- Load products ---
   function filterProductsByCategory(categoryId) {
     fetch("/api/products")
       .then(res => res.json())
       .then(products => {
         const grid = document.getElementById("productGrid");
-        grid.innerHTML = ""; // clear previous
+        grid.innerHTML = "";
 
         const filterId = parseInt(categoryId) || 0;
-
         products
           .filter(p => !filterId || p.category_id === filterId)
           .forEach(p => renderProduct(p));
@@ -53,17 +51,25 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(err => console.error("Failed to load products:", err));
   }
 
-  // --- Add new product (admin only) ---
+  // --- Add new product ---
   function addProduct() {
+    if (!isAdmin) return alert("Only admins can add products!");
+
     const categorySelect = document.getElementById("categorySelectForAdd");
     const categoryId = parseInt(categorySelect.value || "0");
     if (!categoryId) return alert("Please select a category!");
 
+    let stock = parseInt(document.getElementById("stock").value || "0");
+    let price = parseFloat(document.getElementById("price").value || "0");
+
+    // Prevent negative stock/price
+    if (stock < 0 || price < 0) return alert("Stock and price cannot be negative!");
+
     const product = {
       product_name: document.getElementById("name").value,
       manufacturer: document.getElementById("manufacturer").value || "",
-      stock: parseInt(document.getElementById("stock").value || "0"),
-      price: parseFloat(document.getElementById("price").value || "0"),
+      stock,
+      price,
       description: document.getElementById("description").value || "",
       category_id: categoryId
     };
@@ -75,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
       .then(res => res.json())
       .then(() => {
-  
+        // Clear form
         document.getElementById("name").value = "";
         document.getElementById("manufacturer").value = "";
         document.getElementById("stock").value = "";
@@ -83,30 +89,55 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("description").value = "";
         categorySelect.value = "";
 
-        // refresh products
         const currentCategory = document.getElementById("categorySelect").value;
         filterProductsByCategory(currentCategory);
       })
       .catch(err => console.error("Error adding product:", err));
   }
 
-  // --- Edit product ---
+  // --- Enable edit mode ---
   function enableEditMode(product, card) {
     const stockSpan = card.querySelector(".stock");
     const priceSpan = card.querySelector(".price");
 
-    stockSpan.innerHTML = `<input type="number" class="edit-stock" value="${product.stock}">`;
-    priceSpan.innerHTML = `<input type="number" step="0.01" class="edit-price" value="${product.price}">`;
+    const stockInput = document.createElement("input");
+    stockInput.type = "number";
+    stockInput.className = "edit-stock";
+    stockInput.value = product.stock;
+    stockInput.min = "0";
+
+    const priceInput = document.createElement("input");
+    priceInput.type = "number";
+    priceInput.className = "edit-price";
+    priceInput.step = "0.01";
+    priceInput.value = product.price;
+    priceInput.min = "0";
+
+    // Prevent typing negative values
+    stockInput.addEventListener("input", () => {
+      if (parseInt(stockInput.value) < 0) stockInput.value = 0;
+    });
+    priceInput.addEventListener("input", () => {
+      if (parseFloat(priceInput.value) < 0) priceInput.value = 0;
+    });
+
+    stockSpan.innerHTML = "";
+    stockSpan.appendChild(stockInput);
+    priceSpan.innerHTML = "";
+    priceSpan.appendChild(priceInput);
 
     const editBtn = card.querySelector(".edit-btn");
     editBtn.textContent = "Save";
     editBtn.onclick = () => saveUpdate(product.product_id, card);
   }
 
-  // --- Save edited product ---
+  // --- Save updated product ---
   function saveUpdate(productId, card) {
     const newStock = parseInt(card.querySelector(".edit-stock").value);
     const newPrice = parseFloat(card.querySelector(".edit-price").value);
+
+    // Prevent negative values
+    if (newStock < 0 || newPrice < 0) return alert("Stock and price cannot be negative!");
 
     fetch(`/api/products/${productId}`, {
       method: "PUT",
@@ -134,11 +165,11 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(err => console.error("Delete failed:", err));
   }
 
-  // --- Add produkt knapp ---
+  // --- Add product button ---
   const addBtn = document.querySelector(".add-product button");
   if (addBtn) addBtn.onclick = addProduct;
 
-  // --- Kategori filter precis som för users ---
+  // --- Category filter ---
   const filterSelect = document.getElementById("categorySelect");
   if (filterSelect) {
     filterSelect.addEventListener("change", e => {
@@ -146,6 +177,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Laddar in för admins ---
+  // --- Initial load ---
   filterProductsByCategory("");
 });
