@@ -1,10 +1,11 @@
 package order
 
 import (
+	"context"
 	"ecommerce/duckyarmy/internal/cart"
 	"ecommerce/duckyarmy/internal/product"
+	"ecommerce/duckyarmy/internal/transaction"
 	"errors"
-	"fmt"
 )
 
 type OrderService interface {
@@ -12,47 +13,72 @@ type OrderService interface {
 }
 
 type orderService1 struct {
+	tm          transaction.TxManager
 	orderRepo   OrderRepository
 	cartRepo    cart.CartRepository
 	productRepo product.ProductRepository
 }
 
 func NewOrderService1(
+	tm transaction.TxManager,
 	orderRepo OrderRepository,
 	cartRepo cart.CartRepository,
-	productRepo product.ProductRepository) *orderService1 {
-	return &orderService1{orderRepo: orderRepo, cartRepo: cartRepo, productRepo: productRepo}
+	productRepo product.ProductRepository,
+) *orderService1 {
+	return &orderService1{
+		tm:          tm,
+		orderRepo:   orderRepo,
+		cartRepo:    cartRepo,
+		productRepo: productRepo,
+	}
 }
 
-func (s *orderService1) CheckOut(userID int) error {
-	// här börjar en transaktion, bör följa ACID.......
-	cart, err := s.cartRepo.GetCartByUserID(userID)
-	fmt.Println(cart.UserID)
+func (s *orderService1) CheckOut(ctx context.Context, userID int) error {
+	tx, err := s.tm.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	cart, err := s.cartRepo.GetCartByUserID(ctx, tx, userID)
 
 	if err != nil {
 		return err
 	}
 
-	cartItems, err := s.cartRepo.GetItems(cart.CartID)
+	cartItems, err := s.cartRepo.RequestCartItems(ctx, tx, cart.CartID)
 	if err != nil {
 		return err
 	}
 	if len(cartItems) == 0 {
-		return errors.New("cannot checkout empty order")
+		return errors.New("cart empty, cant checkout")
 	}
 
 	orderItems := make([]OrderItem, len(cartItems))
+	var subtotal float64
 
 	for i, cartItem := range cartItems {
-		fmt.Println(cartItem.Quantity, cartItem.ProductID)
-		orderItems[i].Quantity = cartItem.Quantity
-		orderItems[i].ProductID = cartItem.ProductID
-		price := 1.5 //err, price := s.productRepo.GetPrice(cartItem.ProductID)
-		fmt.Println("orderService1 CheckOut: hårdkodat pris, väntar på implementering i product")
-		orderItems[i].PriceAtPurchase = price
+		orderItems[i] = OrderItem{
+			ProductID:       cartItem.ProductID,
+			Quantity:        cartItem.Quantity,
+			PriceAtPurchase: cartItem.Price,
+		}
+		err = s.productRepo.DecreaseStock(ctx, tx, cartItem.ProductID, cartItem.Quantity)
+		if err != nil {
+			return err
+		}
+		subtotal += cartItem.Subtotal
 	}
-	fmt.Println(cart.UserID, orderItems[0].Quantity, orderItems[0].PriceAtPurchase, orderItems[0].ProductID)
-	err = s.orderRepo.CheckOut(cart.UserID, orderItems)
 
-	return err
+	err = s.orderRepo.CheckOut(ctx, tx, cart.UserID, subtotal, orderItems)
+	if err != nil {
+		return err
+	}
+
+	err = s.cartRepo.MarkCartAsCheckedOut(ctx, tx, cart.CartID)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

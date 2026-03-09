@@ -111,23 +111,23 @@ func RegisterApiRouts(
 	fmt.Println("registering user handler")
 	engine.POST("/api/users/register", userHandler.RegisterUser)
 	engine.POST("/api/users/login", userHandler.UserLogin)
+	engine.POST("/api/users/infoUpdate", auth.Middleware(), userHandler.UpdateUserInfo)
 	engine.GET("/api/users/logout", userHandler.UserLogout)
 	engine.GET("/api/users/profile", auth.Middleware(), userHandler.GetUserByID)
-	engine.POST("/api/users/infoUpdate", auth.Middleware(), userHandler.UpdateUserInfo)
-	engine.POST("/api/users/update", auth.Middleware(), userHandler.UpdateUserInfo)
-	// handlers för produkter
-	engine.GET("/api/products", productHandler.GetProducts)
-	engine.POST("/api/products", productHandler.CreateProduct)
 
-	engine.POST("/api/cart/items", cartHandler.AddItem)
-	engine.POST("/api/cart/checkout", orderHandler.CheckOut)
-	engine.DELETE("/api/products/:id", productHandler.DeleteProduct)
+	// handlers för produkter
+	engine.POST("/api/products", productHandler.CreateProduct)
+	engine.GET("/api/products", productHandler.GetProducts)
 	engine.PUT("/api/products/:id", productHandler.UpdateProduct)
+	engine.DELETE("/api/products/:id", productHandler.DeleteProduct)
 
 	// handlers för kategorier
-	engine.GET("/api/categories", categoryHandler.GetCategories)
 	engine.POST("/api/categories", categoryHandler.CreateCategory)
+	engine.GET("/api/categories", categoryHandler.GetCategories)
 	engine.DELETE("/api/categories/:id", categoryHandler.DeleteCategory)
 
-	//engine.POST("/api/products", productHandler.CreateProduct)
+	engine.POST("/api/carts/items", auth.Middleware(), cartHandler.AddItem)
+	engine.POST("/api/carts/checkout", auth.Middleware(), orderHandler.CheckOut)
+	engine.GET("/api/carts/items", auth.Middleware(), cartHandler.RequestCartItems)
+	engine.DELETE("/api/carts/items", auth.Middleware(), cartHandler.RemoveItem)
 }

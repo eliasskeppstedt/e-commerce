@@ -8,6 +8,7 @@ import (
 	"ecommerce/duckyarmy/internal/customer"
 	"ecommerce/duckyarmy/internal/order"
 	"ecommerce/duckyarmy/internal/product"
+	"ecommerce/duckyarmy/internal/transaction"
 	"fmt"
 	"log"
 	"os"
@@ -26,6 +27,7 @@ func main() {
 
 	// Initialize database
 	db := tmpDbConfig()
+	txManager := transaction.NewTxManager(db)
 
 	goose.SetDialect("mysql")
 	if err := goose.Up(db, "migrations"); err != nil {
@@ -39,15 +41,15 @@ func main() {
 
 	// PRODUCT SETUP
 	productRepo := product.NewMysqlProductRepository(db)
-	productService := product.NewProductServiceImp(productRepo)
+	productService := product.NewProductServiceImp(*txManager, productRepo)
 	productHandler := product.NewProductHandler(productService)
 
 	cartRepo := cart.NewMysqlCartRepository(db)
-	cartService := cart.NewCartService1(productRepo, cartRepo)
+	cartService := cart.NewCartService1(*txManager, productRepo, cartRepo)
 	cartHandler := cart.NewCartHandler(cartService)
 
 	orderRepo := order.NewMysqlOrderRepository(db)
-	orderService := order.NewOrderService1(orderRepo, cartRepo, productRepo)
+	orderService := order.NewOrderService1(*txManager, orderRepo, cartRepo, productRepo)
 	orderHandler := order.NewOrderHandler(orderService)
 	// CATEGORY SETUP
 	categoryRepo := category.NewMysqlCategoryRepository(db)

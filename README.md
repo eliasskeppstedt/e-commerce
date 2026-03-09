@@ -1,27 +1,61 @@
 # Prerequisites
 
-**Requirements**  
-- Go  
-- Docker  
+## Requirements
+- Docker
 
-## Install Goose
+# Run locally
+## Environment variables
+Create a `.env` file in the project root:
+```
+DBUSER=root
+DBPASS=
+DBURL=mysql:3306
+DBNAME=ecom
+
+JWT_SECRET=
+```
+
+## Start the application
+```bash
+docker compose up --build
+```
+
+# Run application on AWS
+
+## Uppload image to docker hub 
 ```shell
-go install github.com/pressly/goose/v3/cmd/goose@latest
+docker buildx build \
+  --platform linux/amd64 \
+  -t <docker username>/e-commerce:latest \
+  --push .
 ```
 
-Make sure `$GOPATH/bin` is in your path in order to run goose cmd:
+## Copy files
+Copy `.env` and `docker-compose.prod.yaml` file from the local project to the aws instances root directory.
+
+## Pull to aws
 ```shell
-export PATH="$PATH:$(go env GOPATH)/bin"
+docker compose -f docker-compose.prod.yaml pull
+docker compose -f docker-compose.prod.yaml up -d
 ```
-or put it in `.zshrc`, `.bashrc` or alike.
 
-# Run
-## 1. Start up mysql db
+# Connect to mysql server in docker-compose
 ```shell
-docker compose up -d
+docker exec -it <mysql container name> bash
+mysql -u root -p
+# pwd 😘
+use ecom
 ```
-## 2. Apply db migrations
-```shell 
-goose up
+# Note on goose
+If goose migration fails from FK dependencies, reset data in tables. Dont do in prod tho o.o
+## From mysql:
+```sql
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS cart_items, carts, order_items, orders, product_images, products, categories, users;
+SET FOREIGN_KEY_CHECKS = 1;
 ```
-
+## From root dir:
+```shell
+docker exec -it <gin container name> -dir migrations reset
+docker exec -it <gin container name> -dir migrations up
+```

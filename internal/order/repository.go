@@ -1,11 +1,13 @@
 package order
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 )
 
 type OrderRepository interface {
-	CheckOut(userID int, orderItems []OrderItem) error
+	CheckOut(ctx context.Context, tx *sql.Tx, userID int, subtotal float64, orderItems []OrderItem) error
 }
 
 type mysqlOrderRepository struct {
@@ -16,15 +18,19 @@ func NewMysqlOrderRepository(db *sql.DB) *mysqlOrderRepository {
 	return &mysqlOrderRepository{db: db}
 }
 
-func (r *mysqlOrderRepository) CheckOut(userID int, orderItems []OrderItem) error {
-	res, err := r.db.Exec(`
-		INSERT INTO orders (user_id)
-		VALUES (?)`,
-		userID,
+func (r *mysqlOrderRepository) CheckOut(ctx context.Context, tx *sql.Tx, userID int, subtotal float64, orderItems []OrderItem) error {
+	fmt.Println("userID:", userID)
+	fmt.Println("subtotal:", subtotal)
+	res, err := tx.ExecContext(
+		ctx,
+		`INSERT INTO orders (user_id, subtotal_at_purchase)
+		VALUES (?, ?)`,
+		userID, subtotal,
 	)
 	if err != nil {
 		return err
 	}
+
 	orderID, err := res.LastInsertId()
 	if err != nil {
 		return err
@@ -32,10 +38,11 @@ func (r *mysqlOrderRepository) CheckOut(userID int, orderItems []OrderItem) erro
 
 	// for index, value := range slice ...
 	for _, orderItem := range orderItems {
-		_, err = r.db.Exec(`
-			INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase)
+		_, err = tx.ExecContext(
+			ctx,
+			`INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase)
 			VALUES (?, ?, ?, ?)`,
-			orderID,
+			int(orderID),
 			orderItem.ProductID,
 			orderItem.Quantity,
 			orderItem.PriceAtPurchase,
@@ -44,6 +51,7 @@ func (r *mysqlOrderRepository) CheckOut(userID int, orderItems []OrderItem) erro
 		if err != nil {
 			return err
 		}
+		fmt.Println("1")
 	}
 	return nil
 }

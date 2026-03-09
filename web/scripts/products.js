@@ -19,9 +19,10 @@ function renderProduct(p) {
       <p>Stock: <span class="stock">${p.stock}</span></p>
       <p>Price: <span class="price">${p.price}</span> SEK</p>
       <p>Category: ${p.category_name}</p>
+      <button class="btn-add-to-cart" data-id="${p.product_id}">Add to cart</button>
     </div>
   `;
-
+  console.log(p)
   grid.appendChild(card);
 }
 
@@ -42,8 +43,29 @@ function filterProductsByCategory(categoryId) {
     .catch(err => console.error("Failed to load products:", err));
 }
 
+document.addEventListener("click", function(e) {
+  if (e.target.classList.contains("btn-add-to-cart")) {
+    const productId = e.target.dataset.id;
+    addToCart(productId);
+  }
+});
+
+function addToCart(productId) {
+  console.log("Adding product:", productId, "type of productId:", typeof productId);
+
+  fetch("/api/carts/items", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      product_id: Number(productId)
+    })
+  });
+}
+
 // --- Add a new product (admin only) ---
-function addProduct() {
+function createProduct() {
   if (!isAdmin) return alert("Only admins can add products!");
 
   const categorySelect = document.getElementById("categorySelectForAdd");
@@ -51,7 +73,6 @@ function addProduct() {
   if (!categoryId) return alert("Please select a category!");
 
   const product = {
-    product_name: document.getElementById("name").value,
     manufacturer: document.getElementById("manufacturer").value || "",
     stock: parseInt(document.getElementById("stock").value || "0"),
     price: parseFloat(document.getElementById("price").value || "0"),

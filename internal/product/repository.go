@@ -1,6 +1,10 @@
 package product
 
-import "database/sql"
+import (
+	"context"
+	"database/sql"
+	"fmt"
+)
 
 // Produkt interface
 type ProductRepository interface {
@@ -8,8 +12,9 @@ type ProductRepository interface {
 	getAll() ([]Product, error)
 	registerProduct(product Product) error
 	deleteProduct(id int) error
-	GetProductStock(id int) (int, error)
+	GetProductStock(ctx context.Context, tx *sql.Tx, id int) (int, error)
 	updateProduct(id int, stock int, price float64) error
+	DecreaseStock(ctx context.Context, tx *sql.Tx, productID, quantity int) error
 }
 
 // SQL GREJS
@@ -98,9 +103,9 @@ func (r *mysqlProductRepository) deleteProduct(id int) error {
 	return err
 }
 
-func (r *mysqlProductRepository) GetProductStock(id int) (int, error) {
+func (r *mysqlProductRepository) GetProductStock(ctx context.Context, tx *sql.Tx, id int) (int, error) {
 	var stock int
-	err := r.db.QueryRow("SELECT stock FROM products WHERE product_id = ?", id).Scan(&stock)
+	err := tx.QueryRow("SELECT stock FROM products WHERE product_id = ?", id).Scan(&stock)
 	if err != nil {
 		return 0, err
 	}
@@ -116,4 +121,31 @@ func (r *mysqlProductRepository) updateProduct(id int, stock int, price float64)
 		stock, price, id,
 	)
 	return err
+}
+
+func (s *mysqlProductRepository) DecreaseStock(ctx context.Context, tx *sql.Tx, productID, quantity int) error {
+	res, err := tx.ExecContext(
+		ctx,
+		`UPDATE products
+		 SET stock = stock - ?
+		 WHERE product_id = ? AND stock >= ?`,
+		quantity,
+		productID,
+		quantity,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return fmt.Errorf("not enough stock")
+	}
+
+	return nil
 }
