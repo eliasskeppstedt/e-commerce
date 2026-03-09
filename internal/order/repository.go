@@ -30,13 +30,11 @@ func (r *mysqlOrderRepository) CheckOut(ctx context.Context, tx *sql.Tx, userID 
 	if err != nil {
 		return err
 	}
-	fmt.Println("hej2")
+
 	orderID, err := res.LastInsertId()
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("hej1")
 
 	// for index, value := range slice ...
 	for _, orderItem := range orderItems {

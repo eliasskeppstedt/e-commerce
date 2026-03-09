@@ -12,7 +12,7 @@ type ProductRepository interface {
 	getAll() ([]Product, error)
 	registerProduct(product Product) error
 	deleteProduct(id int) error
-	GetProductStock(tx *sql.Tx, id int) (int, error)
+	GetProductStock(ctx context.Context, tx *sql.Tx, id int) (int, error)
 	updateProduct(id int, stock int, price float64) error
 	DecreaseStock(ctx context.Context, tx *sql.Tx, productID, quantity int) error
 }
@@ -103,7 +103,7 @@ func (r *mysqlProductRepository) deleteProduct(id int) error {
 	return err
 }
 
-func (r *mysqlProductRepository) GetProductStock(tx *sql.Tx, id int) (int, error) {
+func (r *mysqlProductRepository) GetProductStock(ctx context.Context, tx *sql.Tx, id int) (int, error) {
 	var stock int
 	err := tx.QueryRow("SELECT stock FROM products WHERE product_id = ?", id).Scan(&stock)
 	if err != nil {

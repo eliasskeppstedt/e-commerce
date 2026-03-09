@@ -8,9 +8,11 @@ import (
 type CartRepository interface {
 	CreateCart(ctx context.Context, tx *sql.Tx, userID int) (*Cart, error)
 	GetCartByUserID(ctx context.Context, tx *sql.Tx, userID int) (*Cart, error)
+	GetCartItemQuantity(ctx context.Context, tx *sql.Tx, cartID, productID int) (int, error)
 
 	AddItem(ctx context.Context, tx *sql.Tx, cartID, productID, quantity int) error
 	RemoveItem(ctx context.Context, tx *sql.Tx, cartID, productID, quantity int) error
+	DeleteItem(ctx context.Context, tx *sql.Tx, cartID, productID int) error
 
 	RequestCartItems(ctx context.Context, tx *sql.Tx, cartID int) ([]CartItemRequest, error)
 	MarkCartAsCheckedOut(ctx context.Context, tx *sql.Tx, cartID int) error
@@ -48,7 +50,9 @@ func (r *mysqlCartRepository) GetCartByUserID(ctx context.Context, tx *sql.Tx, u
 
 	row := tx.QueryRowContext(
 		ctx,
-		"SELECT cart_id FROM carts WHERE user_id = ? AND status = 'active'",
+		`SELECT cart_id 
+		FROM carts 
+		WHERE user_id = ? AND status = 'active'`,
 		userID,
 	)
 	err := row.Scan(&cart.CartID)
@@ -60,6 +64,7 @@ func (r *mysqlCartRepository) GetCartByUserID(ctx context.Context, tx *sql.Tx, u
 	if err != nil {
 		return nil, err
 	}
+
 	cart.UserID = userID
 	return &cart, nil
 }
@@ -70,8 +75,7 @@ func (r *mysqlCartRepository) AddItem(ctx context.Context, tx *sql.Tx, cartID, p
 		`INSERT INTO cart_items (cart_id, product_id, quantity)
 		VALUES (?, ?, ?)
 		ON DUPLICATE KEY UPDATE 
-			quantity = quantity + VALUES(quantity)
-		`,
+			quantity = quantity + VALUES(quantity)`,
 		cartID,
 		productID,
 		quantity,
@@ -81,41 +85,26 @@ func (r *mysqlCartRepository) AddItem(ctx context.Context, tx *sql.Tx, cartID, p
 }
 
 func (r *mysqlCartRepository) RemoveItem(ctx context.Context, tx *sql.Tx, cartID, productID, quantity int) error {
-	var curQuantity int
-
-	row := r.db.QueryRow(`
-        SELECT quantity 
-        FROM cart_items 
-        WHERE cart_id = ? AND product_id = ?`,
-		cartID,
-		productID,
-	)
-
-	err := row.Scan(&curQuantity)
-
-	if err != nil {
-		return err
-	}
-
-	if curQuantity <= quantity {
-		_, err = r.db.Exec(`
-            DELETE FROM cart_items
-            WHERE cart_id = ? AND product_id = ?`,
-			cartID,
-			productID,
-		)
-		return err
-	}
-
-	_, err = r.db.Exec(`
-        UPDATE cart_items
-        SET quantity = quantity - ?
-        WHERE cart_id = ? AND product_id = ?`,
+	_, err := tx.ExecContext(
+		ctx,
+		`UPDATE cart_items
+		SET quantity = quantity - ?
+		WHERE cart_id = ? AND product_id = ?`,
 		quantity,
 		cartID,
 		productID,
 	)
+	return err
+}
 
+func (r *mysqlCartRepository) DeleteItem(ctx context.Context, tx *sql.Tx, cartID, productID int) error {
+	_, err := tx.ExecContext(
+		ctx,
+		`DELETE FROM cart_items
+		WHERE cart_id = ? and product_id = ?`,
+		cartID,
+		productID,
+	)
 	return err
 }
 
@@ -168,4 +157,24 @@ func (r *mysqlCartRepository) MarkCartAsCheckedOut(ctx context.Context, tx *sql.
 	)
 	// hmm nu vid närmare eftertanke borde vi kanske göra en ny cart här, och endast göra första karten vid registrering
 	return err
+}
+
+func (r *mysqlCartRepository) GetCartItemQuantity(ctx context.Context, tx *sql.Tx, cartID, productID int) (int, error) {
+	row := tx.QueryRowContext(
+		ctx,
+		`SELECT quantity
+		FROM cart_items 
+		WHERE cart_id = ? AND product_id = ?`,
+		cartID, productID,
+	)
+
+	var quantity int
+	err := row.Scan(&quantity)
+
+	if err == sql.ErrNoRows {
+		return 0, nil
+	} else if err != nil {
+		return -1, err
+	}
+	return quantity, nil
 }
