@@ -24,6 +24,7 @@ type userService interface {
 		zip_code,
 		phone_number string,
 		userID int) (err error)
+	getUsername(userID int) string
 }
 
 // uhm better name maybe 😅
@@ -79,4 +80,8 @@ func (s *userService1) updateUserInfo(
 	phone_number string,
 	userID int) (err error) {
 	return s.repo.updateUserInfo(email, first_name, last_name, address, zip_code, phone_number, userID)
+}
+
+func (s *userService1) getUsername(userID int) string {
+	return s.repo.getUsername(userID)
 }

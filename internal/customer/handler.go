@@ -118,3 +118,16 @@ func (h *UserHandler) UpdateUserInfo(ctx *gin.Context) {
 	}
 	ctx.Redirect(http.StatusSeeOther, "/profile")
 }
+
+func (h *UserHandler) GetUsername(ctx *gin.Context) {
+	claimsValue, exists := ctx.Get("auth_token")
+	if exists {
+		claims := claimsValue.(*auth.Claims)
+		username := h.service.getUsername(claims.UserID)
+		if username == "" {
+			fmt.Println("Error in getUsername HUR??")
+		}
+		ctx.JSON(http.StatusOK, gin.H{"username": username})
+	}
+
+}
