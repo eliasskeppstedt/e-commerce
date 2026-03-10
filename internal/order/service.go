@@ -9,7 +9,9 @@ import (
 )
 
 type OrderService interface {
-	CheckOut(userID int) error
+	CheckOut(ctx context.Context, userID int) error
+	GetOrdersByUser(ctx context.Context, userID int) ([]OrderWithItems, error)
+	GetAllOrders(ctx context.Context) ([]UserOrders, error)
 }
 
 type orderService1 struct {
@@ -81,4 +83,35 @@ func (s *orderService1) CheckOut(ctx context.Context, userID int) error {
 	}
 
 	return tx.Commit()
+}
+
+func (s *orderService1) GetOrders(ctx context.Context, userID int) ([]OrderWithItems, error) {
+	tx, err := s.tm.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	orders, err := s.orderRepo.GetOrdersByUser(ctx, tx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, tx.Commit()
+}
+
+func (s *orderService1) GetAllOrders(ctx context.Context) ([]UserOrders, error) {
+
+	tx, err := s.tm.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	orders, err := s.orderRepo.GetAllOrders(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return orders, tx.Commit()
 }

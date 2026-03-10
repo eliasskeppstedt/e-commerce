@@ -1,6 +1,7 @@
 package product
 
 import (
+	_ "ecommerce/duckyarmy/internal/review"
 	"ecommerce/duckyarmy/internal/transaction"
 )
 
@@ -25,6 +26,11 @@ func (s *productServiceImp) getByProductID(id int) (Product, error) {
 }
 
 func (s *productServiceImp) getAll() ([]Product, error) {
+	/*products, err := s.repo.getAll()
+	if err != nil {
+		return nil, err
+	}
+	reviews := s.*/
 	return s.repo.getAll()
 }
 

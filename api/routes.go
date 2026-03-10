@@ -7,6 +7,7 @@ import (
 	"ecommerce/duckyarmy/internal/customer"
 	"ecommerce/duckyarmy/internal/order"
 	"ecommerce/duckyarmy/internal/product"
+	"ecommerce/duckyarmy/internal/review"
 	"fmt"
 	"net/http"
 
@@ -104,6 +105,7 @@ func RegisterApiRouts(
 	cartHandler *cart.CartHandler,
 	orderHandler *order.OrderHandler,
 	categoryHandler *category.CategoryHandler,
+	reviewHandler *review.ReviewHandler,
 
 ) {
 
@@ -130,4 +132,11 @@ func RegisterApiRouts(
 	engine.POST("/api/carts/checkout", auth.Middleware(), orderHandler.CheckOut)
 	engine.GET("/api/carts/items", auth.Middleware(), cartHandler.RequestCartItems)
 	engine.DELETE("/api/carts/items", auth.Middleware(), cartHandler.RemoveItem)
+
+	engine.GET("/api/orders", auth.Middleware(), orderHandler.GetOrders)
+	engine.GET("/api/admin/orders", auth.Middleware(), orderHandler.GetAllOrders)
+
+	engine.POST("/api/reviews", auth.Middleware(), reviewHandler.AddReview)
+	engine.GET("/api/reviews", reviewHandler.GetReviews)
+	engine.DELETE("/api/reviews", auth.Middleware(), reviewHandler.DeleteReview)
 }

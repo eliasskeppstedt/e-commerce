@@ -5,7 +5,7 @@ CREATE TABLE `reviews` (
   `product_id` int NOT NULL,
   `user_id` int NOT NULL,
   `comment_text` varchar(500) NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` DATE NOT NULL DEFAULT (CURDATE()),
   `grade` int NOT NULL,
   PRIMARY KEY (`comment_id`),
   FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`),

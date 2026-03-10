@@ -7,7 +7,10 @@
 </head>
 
 <body>
-  <div id="adminFlag" data-is-admin="{{.IsAdmin}}" style="display:none"></div>
+  <div id="adminFlag" 
+       data-is-admin="{{.IsAdmin}}" 
+       data-user-id="{{.UserID}}" 
+       style="display:none"></div>
 
   <div class="title">
     <img src="/icons/logo.png" class="logo">
@@ -21,6 +24,7 @@
       {{if .UserID }}
       <li><a href="cart">Cart</a></li>
       <li><a href="profile">Profile</a></li>
+      <li><a href="orders">Orders</a></li>
       <li><a href="/api/users/logout">Logout</a></li>
       {{else}}
       <li><a href="login">Login</a></li>
@@ -68,15 +72,8 @@
   </div>
   {{end}}
 
-
-
-  {{if .IsAdmin}}
-  <script src="/scripts/productsadmin.js"></script>
-  {{else}}
   <script src="/scripts/products.js"></script>
-  {{end}}
   <script src="/scripts/categories.js"></script>
 
 </body>
-
 </html>

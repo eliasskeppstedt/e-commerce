@@ -6,7 +6,7 @@
   <title>PorschDucky - Profile</title>
 </head>
 <body>
-
+<div id="adminFlag" data-is-admin="{{.IsAdmin}}" style="display:none"></div>
 <div class="title">
   <img src="../icons/logo.png" class="logo">
   PorschDucky
@@ -25,12 +25,10 @@
   </ul>
 </nav>
 
-{{if .IsAdmin}}
-<!--API CALL TILL GET ALL orders-->
-{{else}}
-<!--API CALL FÖR ATT HÄMTA orders where userID == .UserID-->
-{{end}}
+<div class="container">
+  <div id="ordersContainer"></div>
+</div>
 
-<!--JAVASCRIPT FÖR ATT REPRESENTERA orders-->
+<script src="/scripts/orders.js"></script>
 </body>
 </html>
