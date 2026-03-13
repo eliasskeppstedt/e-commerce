@@ -8,6 +8,7 @@ import (
 	"ecommerce/duckyarmy/internal/customer"
 	"ecommerce/duckyarmy/internal/order"
 	"ecommerce/duckyarmy/internal/product"
+	"ecommerce/duckyarmy/internal/review"
 	"ecommerce/duckyarmy/internal/transaction"
 	"fmt"
 	"log"
@@ -56,6 +57,10 @@ func main() {
 	categoryService := category.NewCategoryServiceImp(categoryRepo)
 	categoryHandler := category.NewCategoryHandler(categoryService)
 
+	reviewRepo := review.NewMysqlReviewRepository(db)
+	reviewService := review.NewReviewService(*txManager, reviewRepo)
+	reviewHandler := review.NewReviewHandler(reviewService)
+
 	// Load HTML and static files
 	engine.LoadHTMLGlob("web/html/*")
 	engine.Static("/styles", "./web/styles")
@@ -64,7 +69,7 @@ func main() {
 
 	// Register routes
 	api.RegisterWebRouts(engine)
-	api.RegisterApiRouts(engine, userHandler, productHandler, cartHandler, orderHandler, categoryHandler)
+	api.RegisterApiRouts(engine, userHandler, productHandler, cartHandler, orderHandler, categoryHandler, reviewHandler)
 
 	// Start server
 	if err := engine.Run(":8080"); err != nil {

@@ -2,8 +2,9 @@ package order
 
 import (
 	"ecommerce/duckyarmy/internal/auth"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type OrderHandler struct {
@@ -27,4 +28,29 @@ func (h *OrderHandler) CheckOut(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, gin.H{"message": "order created"})
+}
+
+func (h *OrderHandler) GetOrders(ctx *gin.Context) {
+	userID := auth.GetUserID(ctx)
+	if userID == -1 {
+		return
+	}
+
+	orders, err := h.service.GetOrders(ctx.Request.Context(), userID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, orders)
+}
+
+func (h *OrderHandler) GetAllOrders(ctx *gin.Context) {
+	orders, err := h.service.GetAllOrders(ctx.Request.Context())
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, orders)
 }

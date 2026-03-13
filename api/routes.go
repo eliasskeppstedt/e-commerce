@@ -7,6 +7,7 @@ import (
 	"ecommerce/duckyarmy/internal/customer"
 	"ecommerce/duckyarmy/internal/order"
 	"ecommerce/duckyarmy/internal/product"
+	"ecommerce/duckyarmy/internal/review"
 	"fmt"
 	"net/http"
 
@@ -71,6 +72,20 @@ func RegisterWebRouts(engine *gin.Engine) {
 		fmt.Println("Productpage works")
 	})
 
+	engine.GET("/orders", auth.Middleware(), func(ctx *gin.Context) {
+		claimsValue, exists := ctx.Get("auth_token")
+		if exists {
+			claims := claimsValue.(*auth.Claims)
+			fmt.Println("claims.UserID", claims.UserID)
+			ctx.HTML(http.StatusOK, "ordersPage.html", gin.H{
+				"UserID":  claims.UserID,
+				"IsAdmin": claims.IsAdmin})
+			return
+		}
+		ctx.HTML(http.StatusUnauthorized, "loginPage.html", gin.H{})
+		fmt.Println("Productpage works")
+	})
+
 	engine.GET("/login", func(ctx *gin.Context) {
 		// Return HTTP response
 		ctx.HTML(http.StatusOK, "loginPage.html", gin.H{})
@@ -90,6 +105,7 @@ func RegisterApiRouts(
 	cartHandler *cart.CartHandler,
 	orderHandler *order.OrderHandler,
 	categoryHandler *category.CategoryHandler,
+	reviewHandler *review.ReviewHandler,
 
 ) {
 
@@ -116,4 +132,11 @@ func RegisterApiRouts(
 	engine.POST("/api/carts/checkout", auth.Middleware(), orderHandler.CheckOut)
 	engine.GET("/api/carts/items", auth.Middleware(), cartHandler.RequestCartItems)
 	engine.DELETE("/api/carts/items", auth.Middleware(), cartHandler.RemoveItem)
+
+	engine.GET("/api/orders", auth.Middleware(), orderHandler.GetOrders)
+	engine.GET("/api/admin/orders", auth.Middleware(), orderHandler.GetAllOrders)
+
+	engine.POST("/api/reviews", auth.Middleware(), reviewHandler.AddReview)
+	engine.GET("/api/reviews", reviewHandler.GetReviews)
+	engine.DELETE("/api/reviews", auth.Middleware(), reviewHandler.DeleteReview)
 }

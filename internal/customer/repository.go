@@ -27,6 +27,7 @@ type userRepository interface {
 		zip_code,
 		phone_number string,
 		userID int) (err error)
+	getUsername(userID int) string
 }
 
 type UserRepository struct {
@@ -93,4 +94,14 @@ func (r *UserRepository) updateUserInfo(
 	_, err = r.db.Exec("UPDATE users SET email = ?, first_name = ?, last_name = ?, address = ?, zip_code = ?, phone_number = ? WHERE user_id = ?",
 		email, first_name, last_name, address, zip_code, phone_number, userID)
 	return
+}
+
+func (r *UserRepository) getUsername(userID int) string {
+	var u user
+	err := r.db.QueryRow(`SELECT username FROM users WHERE user_id = ?`, userID).Scan(&u.UserName)
+	if err != nil {
+		fmt.Println("Error in getUsername in repo:", err)
+		return ""
+	}
+	return u.UserName
 }

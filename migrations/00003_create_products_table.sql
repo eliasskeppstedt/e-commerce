@@ -15,6 +15,7 @@ CREATE TABLE `products` (
   CONSTRAINT `stock_non_negative` CHECK (`stock` >= 0),
   CONSTRAINT `price_non_negative` CHECK (`price` >= 0)
 );
+
 -- +goose StatementEnd
 
 -- +goose Down

@@ -7,9 +7,10 @@ CREATE TABLE cart_items (
   `quantity` INT NOT NULL,
   PRIMARY KEY (cart_item_id),
   FOREIGN KEY (cart_id) REFERENCES carts(cart_id),
-  FOREIGN KEY (product_id) REFERENCES products(product_id),
+  FOREIGN KEY (product_id) REFERENCES products(product_id)
+  ON DELETE CASCADE,
   UNIQUE (cart_id, product_id)
-);
+); 
 -- +goose StatementEnd
 
 -- +goose Down

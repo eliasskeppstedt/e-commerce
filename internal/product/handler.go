@@ -54,7 +54,7 @@ func (h *ProductHandler) DeleteProduct(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
 		return
 	}
-
+	fmt.Println(id)
 	if err := h.service.deleteProduct(id); err != nil {
 		fmt.Println("DELETE PRODUCT ERROR:", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete product"})

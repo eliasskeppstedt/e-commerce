@@ -21,6 +21,7 @@
     {{if .UserID}}
       <li><a href="cart">Cart</a></li>
       <li><a href="profile" class="active">Profile</a></li>
+      <li><a href=/orders>Orders</a></li>
       <li><a href="/api/users/logout">Logout</a></li>
     {{else}}
       <li><a href="login">Login</a></li>
@@ -30,7 +31,7 @@
 </nav>
 
 <div class="signup-container profile-container">
-  <form class="signup-form" action="/api/users/infoUpdate" method="POST">
+  <form class="signup-form" action="/api/users/update" method="POST">
     <h2>👤 My Profile 👤</h2>
 
     <div class="input-group">
@@ -68,7 +69,7 @@
       <input type="tel" name="phone_number" id="phone_number" value="{{.Phone}}">
     </div>
 
-    <button type="submit">Update Profile</button>
+    <!--<button type="submit">Update Profile</button>-->
   </form>
 </div>
 <script>
@@ -76,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function() {
     fetch("/api/users/profile")
     .then(response => {
         if (!response.ok) {
-            window.location.href = "/login";
+            window.location.href = "/login"; // redirect if not authorized
             return;
         }
         return response.json();
@@ -96,3 +97,4 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 </body>
 </html>
+

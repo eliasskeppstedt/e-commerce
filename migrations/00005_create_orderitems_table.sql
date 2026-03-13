@@ -6,12 +6,11 @@ CREATE TABLE order_items (
   `product_id` INT NOT NULL,
   `quantity` INT NOT NULL,
   `price_at_purchase` DECIMAL(10,2) NOT NULL,
-  PRIMARY KEY (order_item_id),
-  FOREIGN KEY (order_id) REFERENCES orders(order_id),
-  FOREIGN KEY (product_id) REFERENCES products(product_id),
-  UNIQUE (order_id, product_id)
+  `product_name` VARCHAR(25),
+  PRIMARY KEY (`order_item_id`),
+  FOREIGN KEY (`order_id`) REFERENCES orders(order_id) ON DELETE CASCADE,
+  UNIQUE (`order_id`, `product_id`)
 );
-
 -- +goose StatementEnd
 
 -- +goose Down
