@@ -5,7 +5,8 @@ CREATE TABLE `product_images` (
   `product_id` int NOT NULL,
   `product_image_uri` float NOT NULL,
   PRIMARY KEY (`product_image_id`),
-  FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`) 
+  FOREIGN KEY (`product_id`) REFERENCES `products` (`product_id`)
+  ON DELETE CASCADE
 );
 -- +goose StatementEnd
 

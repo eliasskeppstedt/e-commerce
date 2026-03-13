@@ -8,7 +8,6 @@ CREATE TABLE order_items (
   `price_at_purchase` DECIMAL(10,2) NOT NULL,
   PRIMARY KEY (order_item_id),
   FOREIGN KEY (order_id) REFERENCES orders(order_id),
-  FOREIGN KEY (product_id) REFERENCES products(product_id),
   UNIQUE (order_id, product_id)
 );
 

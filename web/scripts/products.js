@@ -1,22 +1,25 @@
 console.log("products.js loaded successfully");
 
+// -------------------------
+// User / Admin info
+// -------------------------
 const adminElement = document.getElementById("adminFlag");
-const isAdmin = adminElement && adminElement.getAttribute("data-is-admin") === "true";
-const currentUserId = adminElement ? parseInt(adminElement.getAttribute("data-user-id")) : null;
+
+const isAdmin = adminElement?.dataset.isAdmin === "true";
+const userId = adminElement?.dataset.userId
+  ? Number(adminElement.dataset.userId)
+  : null;
 
 // -------------------------
 // Render product
 // -------------------------
 function renderProduct(p) {
-
   const grid = document.getElementById("productGrid");
-
   const card = document.createElement("div");
   card.className = "product-card";
 
   card.innerHTML = `
     <div class="product-image"></div>
-
     <div class="product-content">
       <h3>${p.product_name}</h3>
       <p>${p.description}</p>
@@ -25,13 +28,11 @@ function renderProduct(p) {
       <p>Price: <span class="price">${p.price}</span> SEK</p>
       <p>Category: ${p.category_name}</p>
 
-      <button class="btn-add-to-cart" data-id="${p.product_id}">
-        Add to cart
-      </button>
+      <button class="btn-add-to-cart" data-id="${p.product_id}">Add to cart</button>    
+      ${isAdmin ? `<button class="btn-delete-product" data-id="${p.product_id}">Remove product</button>` : ``}
 
       <div class="reviews" data-product="${p.product_id}">
         <h4>Reviews</h4>
-
         <div class="review-list"></div>
 
         <select class="review-grade">
@@ -44,29 +45,34 @@ function renderProduct(p) {
         </select>
 
         <textarea class="review-text" placeholder="Write a review"></textarea>
-
-        <button class="btn-add-review" data-id="${p.product_id}">
-          Submit Review
-        </button>
+        <button class="btn-add-review" data-id="${p.product_id}">Submit Review</button>
       </div>
     </div>
   `;
+
+  if (isAdmin) {
+    const contentDiv = card.querySelector(".product-content");
+
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Edit";
+    editBtn.className = "edit-btn";
+    editBtn.onclick = () => enableEditMode(p, card);
+
+    contentDiv.appendChild(editBtn);
+  }
 
   grid.appendChild(card);
 
   loadReviews(p.product_id);
 }
 
-
 // -------------------------
 // Load products
 // -------------------------
 function filterProductsByCategory(categoryId) {
-
   fetch("/api/products")
     .then(res => res.json())
     .then(products => {
-
       const grid = document.getElementById("productGrid");
       grid.innerHTML = "";
 
@@ -79,39 +85,34 @@ function filterProductsByCategory(categoryId) {
     .catch(err => console.error("Failed to load products:", err));
 }
 
-
 // -------------------------
 // Add to cart
 // -------------------------
 function addToCart(productId) {
-
   fetch("/api/carts/items", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      product_id: Number(productId)
-    })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ product_id: Number(productId) })
   })
-    .then(res => {
-      if (!res.ok) throw new Error("Failed to add to cart");
+    .then(async res => {
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to add to cart");
+      }
+
       alert("Added to cart!");
       updateCartCount();
     })
-    .catch(err => alert(err.message));
+    .catch(err => alert("Error: " + err.message));
 }
-
 
 // -------------------------
 // Update cart counter
 // -------------------------
 function updateCartCount() {
-
   fetch("/api/carts/items")
     .then(res => res.json())
     .then(items => {
-
       const countElem = document.getElementById("cartCount");
 
       if (countElem) {
@@ -121,12 +122,10 @@ function updateCartCount() {
     });
 }
 
-
 // -------------------------
 // Load reviews
 // -------------------------
 function loadReviews(productId) {
-
   fetch(`/api/reviews?product_id=${productId}`)
     .then(res => res.json())
     .then(reviews => {
@@ -143,20 +142,26 @@ function loadReviews(productId) {
 
         const div = document.createElement("div");
         div.className = "review";
-        div.dataset.userId = r.user_id;
 
         const stars = "★".repeat(r.grade) + "☆".repeat(5 - r.grade);
 
-        let deleteBtnHtml = "";
-        if (r.user_id === currentUserId) {
-          deleteBtnHtml = `<button class="btn-delete-review" data-id="${r.comment_id}">Delete</button>`;
+        let deleteBtnHTML = "";
+
+        if (isAdmin || r.user_id === userId) {
+          deleteBtnHTML = `
+            <button class="btn-delete-review"
+                    data-id="${r.comment_id}"
+                    data-product="${productId}">
+              Delete
+            </button>
+          `;
         }
 
         div.innerHTML = `
           <strong>${r.username}</strong>
           <div class="review-stars">${stars}</div>
           <p>${r.comment_text}</p>
-          ${deleteBtnHtml}
+          ${deleteBtnHTML}
         `;
 
         container.appendChild(div);
@@ -166,7 +171,6 @@ function loadReviews(productId) {
     .catch(err => console.error("Failed to load reviews:", err));
 }
 
-
 // -------------------------
 // Add review
 // -------------------------
@@ -174,23 +178,26 @@ function addReview(productId, text, grade) {
 
   fetch("/api/reviews", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       product_id: Number(productId),
-      text: text,
+      text,
       grade: Number(grade)
     })
   })
-    .then(res => {
-      if (!res.ok) throw new Error("Failed to add review");
-  
-      loadReviews(productId);
-    })
-    .catch(err => alert(err.message));
-}
+    .then(async res => {
 
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to add review");
+      }
+
+      alert("Review added successfully!");
+      loadReviews(productId);
+
+    })
+    .catch(err => alert("Error: " + err.message));
+}
 
 // -------------------------
 // Delete review
@@ -199,73 +206,124 @@ function deleteReview(commentId, productId) {
 
   fetch("/api/reviews", {
     method: "DELETE",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ comment_id: Number(commentId) })
   })
-    .then(res => {
-      if (!res.ok) throw new Error("Failed to delete review");
-  
+    .then(async res => {
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to delete review");
+      }
+
+      alert("Review deleted successfully!");
       loadReviews(productId);
+
     })
-    .catch(err => alert(err.message));
+    .catch(err => alert("Error: " + err.message));
 }
 
+// -------------------------
+// Admin edit product
+// -------------------------
+function enableEditMode(product, card) {
+
+  const stockSpan = card.querySelector(".stock");
+  const priceSpan = card.querySelector(".price");
+
+  stockSpan.innerHTML =
+    `<input type="number" class="edit-stock" value="${product.stock}">`;
+
+  priceSpan.innerHTML =
+    `<input type="number" step="0.01" class="edit-price" value="${product.price}">`;
+
+  const editBtn = card.querySelector(".edit-btn");
+
+  editBtn.textContent = "Save";
+  editBtn.onclick = () => saveUpdate(product.product_id, card);
+}
+
+function saveUpdate(productId, card) {
+
+  const newStock = parseInt(card.querySelector(".edit-stock").value);
+  const newPrice = parseFloat(card.querySelector(".edit-price").value);
+
+  if (newStock < 0) return alert("Stock cannot be negative!");
+  if (newPrice < 0) return alert("Price cannot be negative!");
+
+  fetch(`/api/products/${productId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      stock: newStock,
+      price: newPrice
+    })
+  })
+    .then(async res => {
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Update failed");
+      }
+
+      alert("Product updated successfully!");
+
+      const currentCategory =
+        document.getElementById("categorySelect").value;
+
+      filterProductsByCategory(currentCategory);
+
+    })
+    .catch(err => alert("Error: " + err.message));
+}
 
 // -------------------------
 // Global click handler
 // -------------------------
-document.addEventListener("click", function(e) {
+document.addEventListener("click", function (e) {
 
-  // Add to cart
   if (e.target.classList.contains("btn-add-to-cart")) {
-
-    const productId = e.target.dataset.id;
-    addToCart(productId);
-
+    addToCart(e.target.dataset.id);
   }
 
-  // Add review
-  if (e.target.classList.contains("btn-add-review")) {
+  if (e.target.classList.contains("btn-delete-product")) {
+    deleteProduct(e.target.dataset.id);
+  }
 
-    const productId = e.target.dataset.id;
+  if (e.target.classList.contains("btn-add-review")) {
 
     const container = e.target.closest(".reviews");
 
-    const textarea = container.querySelector(".review-text");
-    const gradeSelect = container.querySelector(".review-grade");
-
-    const text = textarea.value.trim();
-    const grade = gradeSelect.value;
+    const productId = e.target.dataset.id;
+    const text = container.querySelector(".review-text").value.trim();
+    const grade = container.querySelector(".review-grade").value;
 
     if (!grade) return alert("Please select a rating (1–5 stars)");
     if (!text) return alert("Write a review first!");
 
     addReview(productId, text, grade);
 
-    textarea.value = "";
-    gradeSelect.value = "";
+    container.querySelector(".review-text").value = "";
+    container.querySelector(".review-grade").value = "";
   }
 
-  // Delete review
   if (e.target.classList.contains("btn-delete-review")) {
-    const commentId = e.target.dataset.id;
-    const productId = e.target.closest(".reviews").dataset.product;
-    deleteReview(commentId, productId);
-  }
 
+    const productId = e.target.dataset.product;
+
+    deleteReview(e.target.dataset.id, productId);
+  }
 });
 
-
 // -------------------------
-// Admin: create product
+// Create product (admin)
 // -------------------------
 function createProduct() {
 
   if (!isAdmin) return alert("Only admins can add products!");
 
   const categorySelect = document.getElementById("categorySelectForAdd");
+
   const categoryId = parseInt(categorySelect.value || "0");
 
   if (!categoryId) return alert("Please select a category!");
@@ -279,21 +337,25 @@ function createProduct() {
   const product = {
     product_name: document.getElementById("name").value || "",
     manufacturer: document.getElementById("manufacturer").value || "",
-    stock: stock,
-    price: price,
+    stock,
+    price,
     description: document.getElementById("description").value || "",
     category_id: categoryId
   };
 
   fetch("/api/products", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(product)
   })
-    .then(res => res.json())
-    .then(() => {
+    .then(async res => {
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to add product");
+      }
+
+      alert("Product added successfully!");
 
       document.getElementById("name").value = "";
       document.getElementById("manufacturer").value = "";
@@ -303,14 +365,13 @@ function createProduct() {
 
       categorySelect.value = "";
 
-      const currentCategory =
-        document.getElementById("categorySelect").value;
+      filterProductsByCategory(
+        document.getElementById("categorySelect").value
+      );
 
-      filterProductsByCategory(currentCategory);
     })
-    .catch(err => console.error("Error adding product:", err));
+    .catch(err => alert("Error: " + err.message));
 }
-
 
 // -------------------------
 // Initial load
@@ -318,6 +379,26 @@ function createProduct() {
 document.addEventListener("DOMContentLoaded", () => {
 
   filterProductsByCategory("");
-  updateCartCount();
 
+  updateCartCount();
 });
+
+// -------------------------
+// Delete product
+// -------------------------
+function deleteProduct(productId) {
+
+  if (!confirm("Are you sure you want to delete this product?")) return;
+
+  fetch(`/api/products/${productId}`, { method: "DELETE" })
+    .then(res => res.json())
+    .then(() => {
+
+      const currentCategory =
+        document.getElementById("categorySelect").value;
+
+      filterProductsByCategory(currentCategory);
+
+    })
+    .catch(err => console.error("Delete failed:", err));
+}

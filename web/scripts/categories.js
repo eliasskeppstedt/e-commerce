@@ -50,11 +50,16 @@ if (addBtn && newInput) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ category_name: newCategory })
     })
-      .then(() => {
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to add category");
+        alert("Category added successfully!");
         newInput.value = "";
         loadCategories();
       })
-      .catch(err => console.error("Failed to add category:", err));
+      .catch(err => {
+        console.error("Failed to add category:", err);
+        alert("Failed to add category: " + err.message);
+      });
   });
 }
 
@@ -74,10 +79,14 @@ if (removeBtn) {
           alert(data.error);
           return;
         }
+        alert("Category deleted successfully!");
         loadCategories();
         filterProductsByCategory(document.getElementById("categorySelect")?.value || "");
       })
-      .catch(err => console.error("Failed to delete category:", err));
+      .catch(err => {
+        console.error("Failed to delete category:", err);
+        alert("Failed to delete category: " + err.message);
+      });
   });
 }
 

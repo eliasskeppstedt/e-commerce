@@ -10,6 +10,7 @@ type OrderRepository interface {
 	CheckOut(ctx context.Context, tx *sql.Tx, userID int, subtotal float64, orderItems []OrderItem) error
 	GetOrdersByUser(ctx context.Context, tx *sql.Tx, userID int) ([]OrderWithItems, error)
 	GetAllOrders(ctx context.Context, tx *sql.Tx) ([]UserOrders, error)
+	GetProductName(ctx context.Context, tx *sql.Tx, productID int) (string, error)
 }
 
 type mysqlOrderRepository struct {
@@ -45,7 +46,7 @@ func (r *mysqlOrderRepository) CheckOut(ctx context.Context, tx *sql.Tx, userID 
 			`INSERT INTO order_items (order_id, product_id, quantity, price_at_purchase)
 			VALUES (?, ?, ?, ?)`,
 			int(orderID),
-			orderItem.ProductID,
+			&orderItem.ProductID,
 			orderItem.Quantity,
 			orderItem.PriceAtPurchase,
 		)
@@ -62,17 +63,15 @@ func (r *mysqlOrderRepository) GetOrdersByUser(ctx context.Context, tx *sql.Tx, 
 
 	rows, err := tx.QueryContext(
 		ctx,
-		`SELECT 
+		`SELECT
 			o.order_id,
 			o.status,
 			o.date,
-			p.product_id,
-			p.product_name,
+			oi.product_id,
 			oi.quantity,
 			oi.price_at_purchase
 		FROM orders o
 		JOIN order_items oi ON o.order_id = oi.order_id
-		JOIN products p ON oi.product_id = p.product_id
 		WHERE o.user_id = ?
 		ORDER BY o.date DESC`,
 		userID,
@@ -100,7 +99,6 @@ func (r *mysqlOrderRepository) GetOrdersByUser(ctx context.Context, tx *sql.Tx, 
 			&status,
 			&date,
 			&item.ProductID,
-			&item.ProductName,
 			&item.Quantity,
 			&item.Price,
 		)
@@ -139,14 +137,12 @@ func (r *mysqlOrderRepository) GetAllOrders(ctx context.Context, tx *sql.Tx) ([]
 			o.order_id,
 			o.status,
 			o.date,
-			p.product_id,
-			p.product_name,
+			oi.product_id,
 			oi.quantity,
 			oi.price_at_purchase
 		FROM users u
 		JOIN orders o ON u.user_id = o.user_id
 		JOIN order_items oi ON o.order_id = oi.order_id
-		JOIN products p ON oi.product_id = p.product_id
 		ORDER BY u.user_id, o.date DESC`,
 	)
 
@@ -176,7 +172,6 @@ func (r *mysqlOrderRepository) GetAllOrders(ctx context.Context, tx *sql.Tx) ([]
 			&status,
 			&date,
 			&item.ProductID,
-			&item.ProductName,
 			&item.Quantity,
 			&item.Price,
 		)
@@ -215,4 +210,22 @@ func (r *mysqlOrderRepository) GetAllOrders(ctx context.Context, tx *sql.Tx) ([]
 	}
 
 	return result, nil
+}
+
+func (r *mysqlOrderRepository) GetProductName(ctx context.Context, tx *sql.Tx, productID int) (string, error) {
+	var productName string
+
+	err := tx.QueryRowContext(
+		ctx,
+		`SELECT product_name
+		 FROM products
+		 WHERE product_id = ?`,
+		productID,
+	).Scan(&productName)
+
+	if err != nil {
+		return "", err
+	}
+
+	return productName, nil
 }

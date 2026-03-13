@@ -10,7 +10,7 @@ CREATE TABLE `products` (
   `category_id` int NOT NULL,
   PRIMARY KEY (`product_id`),
   FOREIGN KEY (`category_id`) REFERENCES `categories` (`category_id`)
-  ON DELETE RESTRICT
+  ON DELETE CASCADE
   ON UPDATE CASCADE 
 );
 -- +goose StatementEnd

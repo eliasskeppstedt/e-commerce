@@ -109,6 +109,20 @@ func (s *orderService1) GetAllOrders(ctx context.Context) ([]UserOrders, error) 
 	defer tx.Rollback()
 
 	orders, err := s.orderRepo.GetAllOrders(ctx, tx)
+	/*for _, userOrder := range userOrders {
+		for _, orderWithItem := range userOrder.Orders {
+			for _, orderItemView := range orderWithItem.Items {
+				str, err := s.orderRepo.GetProductName(
+					ctx, tx, orderItemView.ProductID,
+				)
+				orderItemView.ProductName = str
+				if err != nil {
+					return nil, err
+				}
+			}
+
+		}
+	}*/
 	if err != nil {
 		return nil, err
 	}
